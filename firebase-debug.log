@@ -1,0 +1,21 @@
+[debug] [2025-07-05T17:36:23.792Z] ----------------------------------------------------------------------
+[debug] [2025-07-05T17:36:23.798Z] Command:       /Users/steve/.nvm/versions/node/v20.16.0/bin/node /Users/steve/.nvm/versions/node/v20.16.0/bin/firebase init
+[debug] [2025-07-05T17:36:23.798Z] CLI Version:   14.9.0
+[debug] [2025-07-05T17:36:23.798Z] Platform:      darwin
+[debug] [2025-07-05T17:36:23.798Z] Node Version:  v20.16.0
+[debug] [2025-07-05T17:36:23.798Z] Time:          Sat Jul 05 2025 13:36:23 GMT-0400 (Eastern Daylight Time)
+[debug] [2025-07-05T17:36:23.798Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-07-05T17:36:23.800Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-07-05T17:36:23.800Z] > authorizing via signed-in user (osteve425@gmail.com)
+[info] 
+     ######## #### ########  ######## ########     ###     ######  ########
+     ##        ##  ##     ## ##       ##     ##  ##   ##  ##       ##
+     ######    ##  ########  ######   ########  #########  ######  ######
+     ##        ##  ##    ##  ##       ##     ## ##     ##       ## ##
+     ##       #### ##     ## ######## ########  ##     ##  ######  ########
+
+You're about to initialize a Firebase project in this directory:
+
+  /Users/steve/CS/ig_checker
+
