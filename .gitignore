@@ -18,12 +18,14 @@
 .env.test.local
 .env.production.local
 
-# Production
-# The .DS_Store file is a metadata file created by macOS's Finder.
-.DS_Store
-
-# Miscellaneous
-# Logs and temporary files that might be generated during development.
+# Logs
+# CRITICAL: Log files can contain sensitive information like tokens.
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+firebase-debug.log*
+*.log
+
+# Production
+# The .DS_Store file is a metadata file created by macOS's Finder.
+.DS_Store
