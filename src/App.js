@@ -16,6 +16,8 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
+// This section initializes the connection to your Firebase project.
+// It checks if the necessary keys exist before trying to connect.
 let app;
 if(firebaseConfig.apiKey && firebaseConfig.projectId){
     app = initalizeApp(firebaseConfig);
