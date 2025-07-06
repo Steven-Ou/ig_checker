@@ -17,3 +17,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 let app;
+if(firebaseConfig.apiKey && firebaseConfig.projectId){
+
+}
