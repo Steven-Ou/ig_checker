@@ -36,5 +36,17 @@ const appId = typeof __app_id !== 'undefined' ? __app_id:'default_app_id';
  * @returns {Promise<Object>} A promise that resolves with the parsed JSON object.
  */
 const parseJsonFile = (file) => {
-    
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const json = JSON.parse(e.target.result);
+        resolve(json);
+      } catch (error) {
+        reject(new Error(`Error parsing ${file.name}: ${error.message}`));
+      }
+    };
+    reader.onerror = (e) => reject(new Error(`Error reading ${file.name}.`));
+    reader.readAsText(file);
+  });
 };
