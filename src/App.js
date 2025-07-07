@@ -5,6 +5,7 @@ import {getAnalytics} from "firebase/analytics";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { ArrowUpCircle, UserCheck, UserX, Heart, Shield, Clock, Users, FileUp, BarChart2 } from 'lucide-react';
+import { get } from "http";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -25,5 +26,5 @@ if(firebaseConfig.apiKey && firebaseConfig.projectId){
 
 //Creating and exporting instances of the Firebase service throughout the app.
 const auth = getAuth(app);
-
+const db = getFirestore(app);
 //-- Helper Functions -- 
