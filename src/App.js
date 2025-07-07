@@ -24,4 +24,6 @@ if(firebaseConfig.apiKey && firebaseConfig.projectId){
 }
 
 //Creating and exporting instances of the Firebase service throughout the app.
+const auth = getAuth(app);
+
 //-- Helper Functions -- 
