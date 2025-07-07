@@ -50,3 +50,10 @@ const parseJsonFile = (file) => {
     reader.readAsText(file);
   });
 };
+
+/**
+ * Extracts a clean list of user data from the raw Instagram JSON structure.
+ * @param {Object} data - The raw JSON data from an Instagram export file.
+ * @param {string} key - The top-level key in the JSON where the user list is located (e.g., 'relationships_followers').
+ * @returns {Array<Object>} An array of user objects, each with a username, url, and timestamp.
+ */
