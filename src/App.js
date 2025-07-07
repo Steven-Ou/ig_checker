@@ -27,4 +27,5 @@ if(firebaseConfig.apiKey && firebaseConfig.projectId){
 //Creating and exporting instances of the Firebase service throughout the app.
 const auth = getAuth(app);
 const db = getFirestore(app);
+const appId = typeof __app_id !== 'undefined'?__app_id:'default_app_id';
 //-- Helper Functions -- 
