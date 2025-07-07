@@ -23,4 +23,5 @@ if(firebaseConfig.apiKey && firebaseConfig.projectId){
     app = initalizeApp(firebaseConfig);
 }
 
+//Creating and exporting instances of the Firebase service throughout the app.
 //-- Helper Functions -- 
