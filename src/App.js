@@ -22,3 +22,5 @@ let app;
 if(firebaseConfig.apiKey && firebaseConfig.projectId){
     app = initalizeApp(firebaseConfig);
 }
+
+//-- Helper Functions -- 
