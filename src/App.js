@@ -30,3 +30,8 @@ const db = getFirestore(app);
 const appId = typeof __app_id !== 'undefined' ? __app_id:'default_app_id';
 
 //-- Helper Functions -- 
+/**
+ * Reads a user-uploaded file and parses its content as JSON.
+ * @param {File} file - The file object from a file input.
+ * @returns {Promise<Object>} A promise that resolves with the parsed JSON object.
+ */
