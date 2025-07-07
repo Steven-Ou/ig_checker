@@ -35,3 +35,4 @@ const appId = typeof __app_id !== 'undefined' ? __app_id:'default_app_id';
  * @param {File} file - The file object from a file input.
  * @returns {Promise<Object>} A promise that resolves with the parsed JSON object.
  */
+const parseJsonFile = (file) => {};
