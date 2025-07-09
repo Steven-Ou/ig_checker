@@ -63,6 +63,6 @@ const extractUsernames = (data, key)=>{
     if(!Array.isArray(list)) return [];
 
     return list.map(item =>({
-
+        username:item.string_list_data[0].value,
     }));
 };
