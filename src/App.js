@@ -62,5 +62,7 @@ const extractUsernames = (data, key)=>{
     const list = data[key] || (Array.isArray(data)?data:[]);
     if(!Array.isArray(list)) return [];
 
-    return
+    return list.map(item =>({
+
+    }));
 };
