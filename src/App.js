@@ -58,5 +58,6 @@ const parseJsonFile = (file) => {
  * @returns {Array<Object>} An array of user objects, each with a username, url, and timestamp.
  */
 const extractUsernames = (data, key)=>{
+    if(!data) return [];
     
 };
