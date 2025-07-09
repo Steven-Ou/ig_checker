@@ -65,5 +65,6 @@ const extractUsernames = (data, key)=>{
     return list.map(item =>({
         username:item.string_list_data[0].value,
         url:item.string_list_data[0].href,
+        timestamp:item.string_list_data[0].timestamp,
     }));
 };
