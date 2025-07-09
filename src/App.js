@@ -74,3 +74,17 @@ const extractUsernames = (data, key)=>{
 /**
  * A reusable Modal component for showing messages or alerts to the user.
  */
+const Modal = ({ title, message, onClose }) => (
+    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">{title}</h3>
+            <p className="text-gray-600 mb-6">{message}</p>
+            <button 
+                onClick={onClose} 
+                className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300"
+            >
+                Close
+            </button>
+        </div>
+    </div>
+);
