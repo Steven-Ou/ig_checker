@@ -70,3 +70,7 @@ const extractUsernames = (data, key)=>{
 };
 
 // --React Components-- 
+
+/**
+ * A reusable Modal component for showing messages or alerts to the user.
+ */
