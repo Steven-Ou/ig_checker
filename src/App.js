@@ -98,5 +98,7 @@ const FileInput=({
     requiredFileName
 }) =>{
     const [fileName, setFileName] = useState('');
-    
+    if(file){
+        
+    }
 };
