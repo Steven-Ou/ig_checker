@@ -109,7 +109,7 @@ const FileInput=({
 
     return(
         <div className="w-full">
-            <label classname = "block text-sm font-medium text-gray-600 mb-2"></label>
+            <label classname = "block text-sm font-medium text-gray-600 mb-2">{label}</label>
         </div>
     );
 };
