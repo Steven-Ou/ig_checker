@@ -92,3 +92,8 @@ const Modal = ({ title, message, onClose }) => (
 /**
  * A reusable file input component with a nice UI for dragging and dropping files.
  */
+const FileInput=({
+    onFileSelect, 
+    label, 
+    requiredFileName
+})
