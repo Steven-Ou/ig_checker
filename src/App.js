@@ -100,5 +100,6 @@ const FileInput=({
     const [fileName, setFileName] = useState('');
     if(file){
         setFileName(file.name);
+        onFileSelect(file);
     }
 };
