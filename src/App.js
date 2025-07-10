@@ -108,6 +108,8 @@ const FileInput=({
     };
 
     return(
-        
+        <div className="w-full">
+            
+        </div>
     );
 };
