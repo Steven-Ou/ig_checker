@@ -88,3 +88,7 @@ const Modal = ({ title, message, onClose }) => (
         </div>
     </div>
 );
+
+/**
+ * A reusable file input component with a nice UI for dragging and dropping files.
+ */
