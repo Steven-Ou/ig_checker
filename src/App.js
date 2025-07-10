@@ -98,8 +98,11 @@ const FileInput=({
     requiredFileName
 }) =>{
     const [fileName, setFileName] = useState('');
-    if(file){
-        setFileName(file.name);
-        onFileSelect(file);
-    }
+
+    const handleFileChange=(e)=>{
+        if(file){
+            setFileName(file.name);
+            onFileSelect(file);
+        }
+    };
 };
