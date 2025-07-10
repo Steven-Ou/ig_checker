@@ -97,5 +97,6 @@ const FileInput=({
     label, 
     requiredFileName
 }) =>{
-
+    const [fileName, setFileName] = useState('');
+    
 };
