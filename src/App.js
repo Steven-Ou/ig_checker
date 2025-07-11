@@ -112,7 +112,7 @@ const FileInput=({
             <label classname = "block text-sm font-medium text-gray-600 mb-2">{label}</label>
             <label htmlFor={requiredFileName} className={`flex justify-center items-center w-full px-4 py-6 bg-gray-50 rounded-lg border-2 ${fileName ? 'border-green-400' : 'border-dashed border-gray-300'} cursor-pointer hover:border-blue-500 transition-all`}>
                 <div>
-                    
+                    <FileUp className={`mx-auto h-10 w-10 ${fileName ? 'text-green-500' : 'text-gray-400'}`}></FileUp>
                 </div>
             </label>
         </div>
