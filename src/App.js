@@ -114,8 +114,8 @@ const FileInput=({
                 <div>
                     <FileUp className={`mx-auto h-10 w-10 ${fileName ? 'text-green-500' : 'text-gray-400'}`}></FileUp>
                 </div>
-                <p>
-                    
+                <p className={`mt-2 text-sm ${fileName ? 'text-green-600 font-semibold' : 'text-gray-500'}`}>
+
                 </p>
             </label>
         </div>
