@@ -134,6 +134,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
     const [isLoading, setIsLoading] = useState(false);
     //State to control the visibility and content of the modal.
     const [modal, setModal] = useState({ show: false, title: '', message: '' });
+    // State to store the current user's unique ID from Firebase Auth.
     const [userId, setUserId] = useState(null);
 
 };
