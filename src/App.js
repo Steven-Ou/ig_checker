@@ -122,3 +122,8 @@ const FileInput=({
         </div>
     );
 };
+
+//The User first screen.
+/**
+ * The first screen the user sees. It handles file selection and uploading to Firestore.
+ */
