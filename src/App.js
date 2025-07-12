@@ -138,5 +138,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
     const [userId, setUserId] = useState(null);
 
     //'useEffect' hook to listen for authentication changes and get the user's ID.
+    useEffect(() =>{
 
+    }, []);
 };
