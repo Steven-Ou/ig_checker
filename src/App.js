@@ -139,6 +139,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
 
     //'useEffect' hook to listen for authentication changes and get the user's ID.
     useEffect(() =>{
+        const unsubscribe = onAuthStateChanged(auth, (user)=>{
 
+        });
     }, []);
 };
