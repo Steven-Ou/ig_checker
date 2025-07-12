@@ -144,5 +144,6 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 setUserId(user.uid);
             }
         });
+        return () => unsubscribe();
     }, []);
 };
