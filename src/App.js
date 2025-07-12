@@ -126,3 +126,7 @@ const FileInput=({
 /**
  * The first screen the user sees. It handles file selection and uploading to Firestore.
  */
+
+const UploadScreen = ({ onUploadComplete}) =>{
+
+};
