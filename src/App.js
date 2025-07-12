@@ -132,6 +132,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
     const [files, setFiles] = useState({});    
     // State to manage the loading spinner on the button.
     const [isLoading, setIsLoading] = useState(false);
+    // State to control the visibility and content of the modal.
     const [modal, setModal] = useState({ show: false, title: '', message: '' });
 
 };
