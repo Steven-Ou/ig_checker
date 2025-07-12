@@ -119,7 +119,6 @@ const FileInput=({
                 </p>
             </label>
             <input type="file" id={requiredFileName} className="hidden" accept=".json" onChange={handleFileChange} />
-
         </div>
     );
 };
