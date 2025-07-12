@@ -129,4 +129,6 @@ const FileInput=({
 
 const UploadScreen = ({ onUploadComplete}) =>{
     //State to hold the file objects selected by the user.
+    const [files, setFiles] = useState({});
+
 };
