@@ -149,7 +149,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
 
     const handleFileSelect = (file,type)=>{
         setFiles(prev=>({
-
+            ...prev,
+            [type]: file
         }));
     };
 };
