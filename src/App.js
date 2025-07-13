@@ -177,6 +177,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
         setIsLoading(true);
 
         try{
+            //Parse the main JSON files.
             const followersJson= await parseJsonFile(files.followers);
             const followingJson= await parseJsonFile(files.following);
         }
