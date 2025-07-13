@@ -171,7 +171,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
             });
             return;
         }
-        
+
         setIsLoading(true);
+
+        
     };
 };
