@@ -163,5 +163,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             });
             return;
         }
+        if(!userId){
+            
+        }
     };
 };
