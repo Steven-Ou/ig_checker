@@ -153,4 +153,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             [type]: file
         }));
     };
+
+    const handleUpload = async ()=>{
+        
+    };
 };
