@@ -183,6 +183,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
 
             //Extract clean list of users.
             const followers = extractUsernames(followersJson, 'relationships_followers'); 
+            const following = extractUsernames(followingJson, 'relationships_following');
         }
     };
 };
