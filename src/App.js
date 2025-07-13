@@ -147,5 +147,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
         return () => unsubscribe();
     }, []);
 
-    
+    const handleFileSelect = (file,type)=>{
+        setFiles(prev=>({
+
+        }));
+    };
 };
