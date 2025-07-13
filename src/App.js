@@ -159,7 +159,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             setModal({
                 show:true,
                 title:'Missing Files',
-                
+                message:'Please upload both the followers and following files!'
             })
         }
     };
