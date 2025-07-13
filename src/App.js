@@ -167,7 +167,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             setModal({
                 show:true,
                 title:'Authentication Error',
-                
+                message: 'Could not verify user. Please refresh and try again.'
             });
         }
     };
