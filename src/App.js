@@ -169,6 +169,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 title:'Authentication Error',
                 message: 'Could not verify user. Please refresh and try again.'
             });
+            return;
         }
     };
 };
