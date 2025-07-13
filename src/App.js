@@ -166,6 +166,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
         if(!userId){
             setModal({
                 show:true,
+                title:'Authentication Error',
                 
             });
         }
