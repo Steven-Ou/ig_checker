@@ -6,6 +6,7 @@ import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken }
 import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
 import { ArrowUpCircle, UserCheck, UserX, Heart, Shield, Clock, Users, FileUp, BarChart2 } from 'lucide-react';
 import { get } from "http";
+import parseJson from "parse-json";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -175,7 +176,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
         setIsLoading(true);
 
         try{
-            const followersJson = await parseJsonFile(files.followers);
+            const followersJson= await parseJsonFile(files.followers);
+            const followingJson= await parseJsonFile(files.following);
         }
     };
 };
