@@ -157,6 +157,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
     const handleUpload = async ()=>{
         if(!files.followers || !files.following){
             setModal({
+                show:true,
                 
             })
         }
