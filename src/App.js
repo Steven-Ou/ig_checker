@@ -160,7 +160,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 show:true,
                 title:'Missing Files',
                 message:'Please upload both the followers and following files!'
-            })
+            });
+
         }
     };
 };
