@@ -156,6 +156,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
     };
     //This function handles the main logic of parsing files and uploading to the database.
     const handleUpload = async ()=>{
+        //Basic validation to ensure required files are present. 
         if(!files.followers || !files.following){
             setModal({
                 show:true,
