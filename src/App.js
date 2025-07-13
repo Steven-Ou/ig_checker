@@ -174,6 +174,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
 
         setIsLoading(true);
 
-        
+        try{
+            const followersJson = await parseJsonFile(files.followers);
+        }
     };
 };
