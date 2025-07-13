@@ -158,6 +158,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
         if(!files.followers || !files.following){
             setModal({
                 show:true,
+                title:'Missing Files',
                 
             })
         }
