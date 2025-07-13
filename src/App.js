@@ -165,7 +165,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
         }
         if(!userId){
             setModal({
-
+                show:true,
+                
             });
         }
     };
