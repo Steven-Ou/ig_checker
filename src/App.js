@@ -185,7 +185,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             const followers = extractUsernames(followersJson, 'relationships_followers'); 
             const following = extractUsernames(followingJson, 'relationships_following');
 
-            
+            //Define the optional files that can also be uploaded.
         }
     };
 };
