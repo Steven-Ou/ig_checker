@@ -191,6 +191,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 {key: 'closedFriends', file:files.closeFriends, jsonKey:'relationships_close_friends'},
                 {key: 'pendingRequests', file:files.pendingRequests, jsonKey:'relationships_follow_requests_sent'},
             ];
+
+            
         }
     };
 };
