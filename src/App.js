@@ -187,7 +187,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
 
             //Define the optional files that can also be uploaded.
             const otherFiles =[
-                
+                {},
+                {},
+                {},
             ];
         }
     };
