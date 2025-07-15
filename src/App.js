@@ -188,7 +188,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             //Define the optional files that can also be uploaded.
             const otherFiles =[
                 {key: 'blocked', files:files.blocked, jsonKey:'relationships_blocked_users' },
-                {},
+                {key: 'closedFriends', file:files.closeFriends, jsonKey:'relationships_close_friends'},
                 {},
             ];
         }
