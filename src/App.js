@@ -186,6 +186,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
             const following = extractUsernames(followingJson, 'relationships_following');
 
             //Define the optional files that can also be uploaded.
+            const otherFiles =[
+                
+            ];
         }
     };
 };
