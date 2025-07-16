@@ -192,6 +192,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 {key: 'pendingRequests', file:files.pendingRequests, jsonKey:'relationships_follow_requests_sent'},
             ];
 
+            //Use a Firestore "batch" to perform multiple writes as a single atomic operation.
             
         }
     };
