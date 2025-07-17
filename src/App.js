@@ -206,6 +206,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             };
 
             await uploadList(followers, 'followers');
+            await uploadList(following, 'following');
+
         }
     };
 };
