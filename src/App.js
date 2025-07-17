@@ -200,6 +200,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 const collectionRef = collection(db, `artifacts/${appId}/users`, userId, collectionName);
                 list.forEach(item=>{
                     const docRef = doc(collectionRef, item.username);
+                    batch.set(docRef, item);
                 });
             };
         }
