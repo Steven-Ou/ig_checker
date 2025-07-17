@@ -205,7 +205,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 });
             };
 
-            
+            await uploadList(followers, 'followers');
         }
     };
 };
