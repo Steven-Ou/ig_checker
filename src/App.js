@@ -195,7 +195,10 @@ const UploadScreen = ({ onUploadComplete}) =>{
             //Use a Firestore "batch" to perform multiple writes as a single atomic operation.
             //This is more efficient and safer than many individual writes.
             const batch = writeBatch(db);
-    
+            
+            const uploadList= aysnc()=>{
+
+            };
         }
     };
 };
