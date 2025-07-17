@@ -205,6 +205,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 });
             };
 
+            //Upload the main lists.
             await uploadList(followers, 'followers');
             await uploadList(following, 'following');
 
