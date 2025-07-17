@@ -198,6 +198,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
             
             const uploadList= async(list, collectionName)=>{
                 const collectionRef = collection(db, `artifacts/${appId}/users`, userId, collectionName);
+                list.forEach(item=>{
+
+                });
             };
         }
     };
