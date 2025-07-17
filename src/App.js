@@ -211,7 +211,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
 
 
             for(const{key,file,jsonKey} of otherFiles){
+                if(file){
 
+                }
             }
 
         }
