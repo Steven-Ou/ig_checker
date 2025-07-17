@@ -213,6 +213,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             for(const{key,file,jsonKey} of otherFiles){
                 if(file){
                     const json = await parseJsonFile(file);
+                    const data = extractUsernames(json, jsonKey);
 
                 }
             }
