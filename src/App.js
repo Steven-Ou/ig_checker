@@ -196,6 +196,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             //This is more efficient and safer than many individual writes.
             const batch = writeBatch(db);
             
+            //A helper function to upload a list of users to a specific collection in Firestore.
             const uploadList= async(list, collectionName)=>{
                 const collectionRef = collection(db, `artifacts/${appId}/users`, userId, collectionName);
                 list.forEach(item=>{
