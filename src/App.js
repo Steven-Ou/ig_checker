@@ -210,8 +210,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             await uploadList(following, 'following');
 
 
-            for(const{} of otherFiles){
-                
+            for(const{key,file,jsonKey} of otherFiles){
+
             }
 
         }
