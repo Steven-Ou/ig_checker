@@ -214,6 +214,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 if(file){
                     const json = await parseJsonFile(file);
                     const data = extractUsernames(json, jsonKey);
+                    await uploadList(data, key);
 
                 }
             }
