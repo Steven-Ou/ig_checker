@@ -196,7 +196,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             //This is more efficient and safer than many individual writes.
             const batch = writeBatch(db);
             
-            const uploadList= aysnc()=>{
+            const uploadList= aysnc(list, collectionName)=>{
 
             };
         }
