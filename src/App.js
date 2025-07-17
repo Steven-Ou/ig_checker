@@ -204,6 +204,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
                     batch.set(docRef, item);
                 });
             };
+
+            
         }
     };
 };
