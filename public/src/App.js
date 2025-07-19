@@ -238,6 +238,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             setTimeout(onUploadCompletem,2000);
         }catch(error){
 
+        }finally{
+            
         }
     };
 };
