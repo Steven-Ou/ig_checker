@@ -225,6 +225,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 followerCount: followers.length,
                 followers:followers.map(f=>f.username)
             });
+
+            
         }
     };
 };
