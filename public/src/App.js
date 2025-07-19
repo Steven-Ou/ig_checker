@@ -235,6 +235,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 title:'Success!',
                 message:'Your Instagram data has been securely uploaded and analyzed.'
             });
+            setTimeout(onUploadCompletem,2000);
         }
     };
 };
