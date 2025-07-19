@@ -222,6 +222,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             const snapshotRef = doc(db, `artifacts/${appId}/users`, userId, 'snapshots', new Date().toISOString());
             batch.set(snapshotRef,{
                 createdAt: new Date(),
+                followerCount: followers.length,
+                followers:followers.map(f=>f.username)
             });
         }
     };
