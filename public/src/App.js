@@ -230,6 +230,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
             await batch.commit();
 
             //Showing a success message and then triggering the transitioning to the dashboard.
+            setModal({
+                
+            });
         }
     };
 };
