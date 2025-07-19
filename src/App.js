@@ -218,7 +218,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 }
             }
 
-            //Store a snapshot of the current followers list for future comparisons
+            //Storing a snapshot of the current followers list for future comparisons
         }
     };
 };
