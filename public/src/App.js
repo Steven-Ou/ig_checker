@@ -228,6 +228,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
 
             //commit all the batched writes to the database.
             await batch.commit();
+
+            
         }
     };
 };
