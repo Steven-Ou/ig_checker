@@ -219,6 +219,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             }
 
             //Storing a snapshot of the current followers list for future comparisons
+            const snapshotRef = doc(db, `artifacts/${appId}/users`, userId, 'snapshots', new Date().toISOString());
+
         }
     };
 };
