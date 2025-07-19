@@ -226,6 +226,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 followers:followers.map(f=>f.username)
             });
 
+            //commit all the batched writes to the database.
             
         }
     };
