@@ -247,7 +247,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
         }
     };
 
+    //The JSX that defines the UI for the upload screen.
     return(
-        
+
     );
 };
