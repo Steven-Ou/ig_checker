@@ -233,6 +233,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             setModal({
                 show:true,
                 title:'Success!',
+                message:'Your Instagram data has been securely uploaded and analyzed.'
             });
         }
     };
