@@ -239,6 +239,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
         }catch(error){
             setModal({
                 show:true,
+                title:'Upload Failed',
                 
             });
         }finally{
