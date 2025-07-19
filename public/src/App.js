@@ -238,7 +238,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             setTimeout(onUploadCompletem,2000);
         }catch(error){
             setModal({
-
+                show:true,
+                
             });
         }finally{
             setIsLoading(false);
