@@ -254,7 +254,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
             <Modal 
                 title = {modal.title}
                 message={modal.message}
-                
+                onClose={()=> setModal({
+
+                })}
             />
             }
         </div>
