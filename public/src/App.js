@@ -261,7 +261,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 })}
             />
             }
-            
+            <div>
+                
+            </div>
         </div>
     );
 };
