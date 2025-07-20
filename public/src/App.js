@@ -253,6 +253,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             {modal.show && 
             <Modal 
                 title = {modal.title}
+                message={modal.message}
                 
             />
             }
