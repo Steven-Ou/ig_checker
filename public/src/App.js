@@ -250,7 +250,11 @@ const UploadScreen = ({ onUploadComplete}) =>{
     //The JSX that defines the UI for the upload screen.
     return(
         <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-
+            {modal.show && 
+            <Modal 
+                title
+            />
+            }
         </div>
     );
 };
