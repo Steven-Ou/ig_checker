@@ -257,6 +257,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 onClose={()=> setModal({
                     show:false,
                     title:'',
+                    message:''
                 })}
             />
             }
