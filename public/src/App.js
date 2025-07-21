@@ -263,6 +263,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
             }
             <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl p-6 md:p-10">
                 <div className="text-center mb-8">
+                    <BarChart2 className="mx-auto h-12 w-12 text-blue-600" />
 
                 </div>
             </div>
