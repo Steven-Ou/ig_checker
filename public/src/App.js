@@ -262,8 +262,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
             />
             }
             <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl p-6 md:p-10">
-                <div>
-                    
+                <div className="text-center mb-8">
+
                 </div>
             </div>
         </div>
