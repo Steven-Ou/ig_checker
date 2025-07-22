@@ -280,6 +280,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 </div>
                 <button
                     onClick={handleUpload}        
+                    disabled={isLoading || !files.followers || !files.following}
                 >
 
                 </button>
