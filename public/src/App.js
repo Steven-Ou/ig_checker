@@ -274,6 +274,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     <FileInput onFileSelect={(file) => handleFileSelect(file, 'followers')} label="1. Followers File (Required)" requiredFileName="followers_1.json" />
                     <FileInput onFileSelect={(file) => handleFileSelect(file, 'following')} label="2. Following File (Required)" requiredFileName="following.json" />
+                    <FileInput onFileSelect={(file) => handleFileSelect(file, 'blocked')} label="Blocked Profiles (Optional)" requiredFileName="blocked_profiles.json" />
                     
                 </div>
             </div>
