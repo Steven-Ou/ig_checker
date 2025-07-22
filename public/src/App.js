@@ -298,6 +298,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
     );
 };
 
+/**
+ * A simple component to display a single user in a list.
+ */
 const UserListItem = ({user}) =>(
     <li className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow">
         <span className="font-medium text-gray-800">
