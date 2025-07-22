@@ -299,7 +299,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
 };
 
 const UserListItem = ({user}) =>(
-    <li>
+    <li className="flex items-center justify-between bg-white p-3 rounded-lg shadow-sm hover:shadow-md transition-shadow">
         
     </li>
 );
