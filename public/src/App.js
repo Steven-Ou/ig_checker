@@ -267,8 +267,8 @@ const UploadScreen = ({ onUploadComplete}) =>{
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4">Instagram Insights Dashboard</h1>
                     <p className="mt-2 text-gray-600">Upload your data export to get started. It's secure and private.</p>
                 </div>
-                <div>
-                    
+                <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md mb-8 text-sm">
+
                 </div>
             </div>
         </div>
