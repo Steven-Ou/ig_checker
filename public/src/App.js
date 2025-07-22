@@ -279,7 +279,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                     <FileInput onFileSelect={(file) => handleFileSelect(file, 'pendingRequests')} label="Pending Follow Requests (Optional)" requiredFileName="pending_follow_requests.json" />
                 </div>
                 <button
-                
+                    onClick={handleUpload}        
                 >
 
                 </button>
