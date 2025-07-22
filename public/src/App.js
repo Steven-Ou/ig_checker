@@ -318,6 +318,7 @@ const UserListItem = ({user}) =>(
 const Dashboard = ({onSignOut})=>{
     // State to track which tab is currently active.
     const[activeTab, setActiveTab] = useState('notFollowingBack');
+    // State to hold all the data fetched from Firestore.    
     const[data,setData] = useState({});
     const[loading,setLoading]= useState(true);
     const [userId, setUserId] = useState(null);
