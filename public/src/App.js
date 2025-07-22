@@ -278,6 +278,11 @@ const UploadScreen = ({ onUploadComplete}) =>{
                     <FileInput onFileSelect={(file) => handleFileSelect(file, 'closeFriends')} label="Close Friends (Optional)" requiredFileName="close_friends.json" />
                     <FileInput onFileSelect={(file) => handleFileSelect(file, 'pendingRequests')} label="Pending Follow Requests (Optional)" requiredFileName="pending_follow_requests.json" />
                 </div>
+                <button
+                
+                >
+
+                </button>
             </div>
         </div>
     );
