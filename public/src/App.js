@@ -328,7 +328,8 @@ const Dashboard = ({onSignOut})=>{
     const fetchData = useCallback(async(uid)=>{
         setLoading(true);
         try{
-            const collections = ['followers', 'following','blocked','closeFriends','pendingRequests']
+            const collections = ['followers', 'following','blocked','closeFriends','pendingRequests'];
+            
         }catch(error){
 
         }finally{
