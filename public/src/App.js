@@ -320,6 +320,7 @@ const Dashboard = ({onSignOut})=>{
     const[activeTab, setActiveTab] = useState('notFollowingBack');
     // State to hold all the data fetched from Firestore.    
     const[data,setData] = useState({});
+    // State to manage the loading state while data is being fetched.
     const[loading,setLoading]= useState(true);
     const [userId, setUserId] = useState(null);
 
