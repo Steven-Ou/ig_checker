@@ -271,7 +271,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                     <h2 className="font-semibold text-blue-800">How to get your data:</h2>
                     <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need the files from the <code>followers_and_following</code> folder.</p>
                 </div>
-                <div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                     
                 </div>
             </div>
