@@ -323,5 +323,7 @@ const Dashboard = ({onSignOut})=>{
     const [userId, setUserId] = useState(null);
 
     // 'useCallback' memoizes this function so it isn't recreated on every render, improving performance.
-    
+    const fetchData = useCallback(async(uid)=>{
+
+    });
 }
