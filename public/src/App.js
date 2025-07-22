@@ -299,5 +299,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
 };
 
 const UserListItem = ({user}) =>(
-
+    <li>
+        
+    </li>
 );
