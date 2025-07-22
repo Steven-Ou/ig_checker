@@ -329,7 +329,9 @@ const Dashboard = ({onSignOut})=>{
         setLoading(true);
         try{
             const collections = ['followers', 'following','blocked','closeFriends','pendingRequests'];
-            
+            const dataPromises = collections.map(async(colName)=>{
+
+            });
         }catch(error){
 
         }finally{
