@@ -332,7 +332,7 @@ const Dashboard = ({onSignOut})=>{
         }catch(error){
 
         }finally{
-            
+
         }
-    });
+    },[]);
 }
