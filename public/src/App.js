@@ -333,8 +333,10 @@ const Dashboard = ({onSignOut})=>{
                 const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/users`, uid, colName));
                 return { [colName]: querySnapshot.docs.map(doc => doc.data()) };
             });
-
             
+            const results = await Promise.all(dataPromises);
+
+
 
         }catch(error){
 
