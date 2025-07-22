@@ -272,6 +272,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                     <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need the files from the <code>followers_and_following</code> folder.</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <FileInput onFileSelect={(file) => handleFileSelect(file, 'followers')} label="1. Followers File (Required)" requiredFileName="followers_1.json" />
                     
                 </div>
             </div>
