@@ -311,3 +311,7 @@ const UserListItem = ({user}) =>(
         </a>
     </li>
 );
+
+/**
+ * The main dashboard screen that displays all the analyzed data in tabs.
+ */
