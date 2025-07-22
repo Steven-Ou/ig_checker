@@ -315,3 +315,6 @@ const UserListItem = ({user}) =>(
 /**
  * The main dashboard screen that displays all the analyzed data in tabs.
  */
+const Dashboard = ({onSignOut})=>{
+    
+}
