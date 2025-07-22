@@ -304,7 +304,7 @@ const UserListItem = ({user}) =>(
             {user.username}
         </span>
         <a href={user.url} target="_blank" rel="noopener noreferrer" className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">
-            
+            View Profile
         </a>
     </li>
 );
