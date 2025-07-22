@@ -285,9 +285,9 @@ const UploadScreen = ({ onUploadComplete}) =>{
                 >
                     {isLoading ?(
                         <>
-                            
+
                         </>
-                    )}
+                    ):'Upload & Analyze'}
                 </button>
             </div>
         </div>
