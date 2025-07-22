@@ -330,6 +330,7 @@ const Dashboard = ({onSignOut})=>{
         try{
             const collections = ['followers', 'following','blocked','closeFriends','pendingRequests'];
             const dataPromises = collections.map(async(colName)=>{
+                const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/users`, uid, colName));
 
             });
         }catch(error){
