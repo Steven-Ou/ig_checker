@@ -268,6 +268,7 @@ const UploadScreen = ({ onUploadComplete}) =>{
                     <p className="mt-2 text-gray-600">Upload your data export to get started. It's secure and private.</p>
                 </div>
                 <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md mb-8 text-sm">
+                    <h2 className="font-semibold text-blue-800">How to get your data:</h2>
 
                 </div>
             </div>
