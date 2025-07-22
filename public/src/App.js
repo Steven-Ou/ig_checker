@@ -316,5 +316,7 @@ const UserListItem = ({user}) =>(
  * The main dashboard screen that displays all the analyzed data in tabs.
  */
 const Dashboard = ({onSignOut})=>{
+    // State to track which tab is currently active.
+
     const[activeTab, setActiveTab] = useState('notFollowingBack');
 }
