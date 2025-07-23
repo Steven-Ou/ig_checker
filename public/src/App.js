@@ -335,6 +335,7 @@ const Dashboard = ({onSignOut})=>{
             });
             
             const results = await Promise.all(dataPromises);
+            const combinedData = results.reduce((acc, current) => ({ ...acc, ...current }), {});
 
 
 
