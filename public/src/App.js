@@ -366,6 +366,6 @@ const Dashboard = ({onSignOut})=>{
                 onSignOut();
             }
         });
+        return () => unsubscribe();
     });
-    return () => unsubscribe();
 }
