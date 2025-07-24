@@ -340,10 +340,12 @@ const Dashboard = ({onSignOut})=>{
             //---Core Analysis Logic ---
             // Create a Set of followers for fast lookups (O(1) complexity).
             const followersSet = new Set(combinedData.followers.map(f => f.username));
-            // Filter the 'following' list to find users who are NOT in the followers set.
-            
+            // Filter the 'following' list to find users who are NOT in the followers set.        
             combinedData.notFollowingBack = combinedData.following.filter(f => !followersSet.has(f.username));
+            
+            
             const followingSet = new Set(combinedData.following.map(f => f.username));
+            
             combinedData.fans = combinedData.followers.filter(f => !followingSet.has(f.username));
 
 
