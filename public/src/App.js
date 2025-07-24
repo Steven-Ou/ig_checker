@@ -343,7 +343,7 @@ const Dashboard = ({onSignOut})=>{
             // Filter the 'following' list to find users who are NOT in the followers set.        
             combinedData.notFollowingBack = combinedData.following.filter(f => !followersSet.has(f.username));
             
-            
+            // Do the reverse to find "fans" (people who follow you, but you don't follow back).
             const followingSet = new Set(combinedData.following.map(f => f.username));
             
             combinedData.fans = combinedData.followers.filter(f => !followingSet.has(f.username));
