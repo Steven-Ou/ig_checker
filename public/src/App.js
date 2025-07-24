@@ -338,7 +338,8 @@ const Dashboard = ({onSignOut})=>{
             const combinedData = results.reduce((acc, current) => ({ ...acc, ...current }), {});
 
             //---Core Analysis Logic ---
-            
+            const followersSet = new Set(combinedData.followers.map(f => f.username));
+
 
         }catch(error){
 
