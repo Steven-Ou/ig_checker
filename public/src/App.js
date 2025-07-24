@@ -339,6 +339,7 @@ const Dashboard = ({onSignOut})=>{
 
             //---Core Analysis Logic ---
             const followersSet = new Set(combinedData.followers.map(f => f.username));
+            combinedData.notFollowingBack = combinedData.following.filter(f => !followersSet.has(f.username));
 
 
         }catch(error){
