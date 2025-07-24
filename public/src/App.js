@@ -365,7 +365,7 @@ const Dashboard = ({onSignOut})=>{
             }else{
                 onSignOut();
             }
-        })
+        });
     });
     return () => unsubscribe();
 }
