@@ -349,7 +349,7 @@ const Dashboard = ({onSignOut})=>{
 
             setData(combinedData);
         }catch(error){
-            console.error
+            console.error("Error fetching data:", error);
         }finally{
 
         }
