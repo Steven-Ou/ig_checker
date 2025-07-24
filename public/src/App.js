@@ -359,7 +359,7 @@ const Dashboard = ({onSignOut})=>{
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth,(user)=>{
             if(user){
-                
+                setUserId(user.uid);
             }
         })
     });
