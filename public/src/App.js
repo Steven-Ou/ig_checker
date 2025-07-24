@@ -360,6 +360,7 @@ const Dashboard = ({onSignOut})=>{
         const unsubscribe = onAuthStateChanged(auth,(user)=>{
             if(user){
                 setUserId(user.uid);
+                fetchData(user.uid);
             }
         })
     });
