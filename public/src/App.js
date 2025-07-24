@@ -345,7 +345,6 @@ const Dashboard = ({onSignOut})=>{
             
             // Do the reverse to find "fans" (people who follow you, but you don't follow back).
             const followingSet = new Set(combinedData.following.map(f => f.username));
-            
             combinedData.fans = combinedData.followers.filter(f => !followingSet.has(f.username));
 
 
