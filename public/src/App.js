@@ -341,6 +341,7 @@ const Dashboard = ({onSignOut})=>{
             const followersSet = new Set(combinedData.followers.map(f => f.username));
             combinedData.notFollowingBack = combinedData.following.filter(f => !followersSet.has(f.username));
             const followingSet = new Set(combinedData.following.map(f => f.username));
+            combinedData.fans = combinedData.followers.filter(f => !followingSet.has(f.username));
 
 
         }catch(error){
