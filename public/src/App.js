@@ -361,6 +361,8 @@ const Dashboard = ({onSignOut})=>{
             if(user){
                 setUserId(user.uid);
                 fetchData(user.uid);
+            }else{
+                
             }
         })
     });
