@@ -338,6 +338,7 @@ const Dashboard = ({onSignOut})=>{
             const combinedData = results.reduce((acc, current) => ({ ...acc, ...current }), {});
 
             //---Core Analysis Logic ---
+            // Create a Set of followers for fast lookups (O(1) complexity).
             const followersSet = new Set(combinedData.followers.map(f => f.username));
             combinedData.notFollowingBack = combinedData.following.filter(f => !followersSet.has(f.username));
             const followingSet = new Set(combinedData.following.map(f => f.username));
