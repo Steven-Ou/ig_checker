@@ -7,6 +7,7 @@ import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch } fr
 import { ArrowUpCircle, UserCheck, UserX, Heart, Shield, Clock, Users, FileUp, BarChart2 } from 'lucide-react';
 import { get } from "http";
 import parseJson from "parse-json";
+import { unsubscribe } from "diagnostics_channel";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -366,4 +367,5 @@ const Dashboard = ({onSignOut})=>{
             }
         })
     });
+    return () => unsubscribe();
 }
