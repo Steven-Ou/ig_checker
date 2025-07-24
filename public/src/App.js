@@ -358,7 +358,9 @@ const Dashboard = ({onSignOut})=>{
     // This useEffect hook runs once when the component mounts to get the user ID and trigger the data fetch.
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth,(user)=>{
-            
+            if(user){
+                
+            }
         })
     });
 }
