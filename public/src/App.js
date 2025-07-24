@@ -354,4 +354,9 @@ const Dashboard = ({onSignOut})=>{
             setLoading(false);
         }
     },[]);
+
+    // This useEffect hook runs once when the component mounts to get the user ID and trigger the data fetch.
+    useEffect(() => {
+    
+    });
 }
