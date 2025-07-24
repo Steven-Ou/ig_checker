@@ -349,7 +349,7 @@ const Dashboard = ({onSignOut})=>{
 
             setData(combinedData);
         }catch(error){
-
+            console.error
         }finally{
 
         }
