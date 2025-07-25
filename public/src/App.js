@@ -401,7 +401,8 @@ const Dashboard = ({onSignOut})=>{
                         {currentTab.list.map(user => <UserListItem key={user.username} user={user} />)}                        
                     </ul>
                 ):(
-
+                    <div>
+                    </div>
                 )}
             </div>
         );
