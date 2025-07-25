@@ -385,5 +385,8 @@ const Dashboard = ({onSignOut})=>{
                 Loading  your insights...
             </div>
         }
+      
+        const currentTab = tabs.find(t => t.id === activeTab);
+
     };
 }
