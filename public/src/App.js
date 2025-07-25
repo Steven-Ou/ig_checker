@@ -377,4 +377,6 @@ const Dashboard = ({onSignOut})=>{
         { id: 'blocked', label: 'Blocked Profiles', icon: Shield, list: data.blocked },
         { id: 'pendingRequests', label: 'Pending Requests', icon: Clock, list: data.pendingRequests },
     ];
+
+    //Renders the content of the currently active tab.
 }
