@@ -388,7 +388,9 @@ const Dashboard = ({onSignOut})=>{
         // Find the currently active tab's data.
         const currentTab = tabs.find(t => t.id === activeTab);
         if(currentTab || !currentTab.list){
-
+            return <div className="text-center p-10 text-gray-500">
+            No data available for this section.
+            </div>;
         }
     };
 }
