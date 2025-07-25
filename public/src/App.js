@@ -381,7 +381,9 @@ const Dashboard = ({onSignOut})=>{
     //Renders the content of the currently active tab.
     const renderContent = ()=>{
         if(loading){
-            return <div className="text-center p-10"></div>
+            return <div className="text-center p-10">
+                Loading  your insights...
+            </div>
         }
     };
 }
