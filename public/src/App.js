@@ -370,4 +370,7 @@ const Dashboard = ({onSignOut})=>{
     },[fetchData,onSignOut]);
 
     //Configuration for the dashboard tabs.
+    const tabs=[
+
+    ];
 }
