@@ -395,7 +395,7 @@ const Dashboard = ({onSignOut})=>{
 
         return(
             <div>
-                
+                <h3 className="text-xl font-bold mb-4">{currentTab.label} ({currentTab.list.length})</h3>
             </div>
         );
     };
