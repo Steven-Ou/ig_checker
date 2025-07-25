@@ -380,12 +380,12 @@ const Dashboard = ({onSignOut})=>{
 
     //Renders the content of the currently active tab.
     const renderContent = ()=>{
-        if(loading){
+        if(loading){// If data is still loading, show a loading message.
             return <div className="text-center p-10">
                 Loading  your insights...
             </div>
         }
-      
+        
         const currentTab = tabs.find(t => t.id === activeTab);
 
     };
