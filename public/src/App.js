@@ -379,4 +379,7 @@ const Dashboard = ({onSignOut})=>{
     ];
 
     //Renders the content of the currently active tab.
+    const renderContent = ()=>{
+
+    };
 }
