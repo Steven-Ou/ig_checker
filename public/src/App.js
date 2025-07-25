@@ -375,6 +375,6 @@ const Dashboard = ({onSignOut})=>{
         { id: 'fans', label: "Fans (You Don't Follow)", icon: UserCheck, list: data.fans },
         { id: 'closeFriends', label: 'Close Friends', icon: Heart, list: data.closeFriends },
         { id: 'blocked', label: 'Blocked Profiles', icon: Shield, list: data.blocked },
-
+        { id: 'pendingRequests', label: 'Pending Requests', icon: Clock, list: data.pendingRequests },
     ];
 }
