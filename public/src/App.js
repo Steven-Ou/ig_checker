@@ -398,7 +398,7 @@ const Dashboard = ({onSignOut})=>{
                 <h3 className="text-xl font-bold mb-4">{currentTab.label} ({currentTab.list.length})</h3>
                 {currentTab.list.length>0 ?(
                     <ul className="space-y-2">
-                        
+                        {currentTab.list.map(user => <UserListItem key={user.username} user={user} />)}                        
                     </ul>
                 ):(
 
