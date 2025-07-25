@@ -402,6 +402,7 @@ const Dashboard = ({onSignOut})=>{
                     </ul>
                 ):(
                     <div className="text-center p-10 bg-gray-50 rounded-lg">
+                        <p className="text-gray-600">No accounts found in this category.</p>
                     </div>
                 )}
             </div>
