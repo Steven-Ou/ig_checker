@@ -372,6 +372,7 @@ const Dashboard = ({onSignOut})=>{
     //Configuration for the dashboard tabs.
     const tabs=[
         { id: 'notFollowingBack', label: "Don't Follow You Back", icon: UserX, list: data.notFollowingBack },
+        { id: 'fans', label: "Fans (You Don't Follow)", icon: UserCheck, list: data.fans },
 
     ];
 }
