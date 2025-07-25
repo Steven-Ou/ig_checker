@@ -369,5 +369,5 @@ const Dashboard = ({onSignOut})=>{
         return () => unsubscribe();
     },[fetchData,onSignOut]);
 
-    
+    //Configuration for the dashboard tabs.
 }
