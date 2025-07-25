@@ -374,6 +374,7 @@ const Dashboard = ({onSignOut})=>{
         { id: 'notFollowingBack', label: "Don't Follow You Back", icon: UserX, list: data.notFollowingBack },
         { id: 'fans', label: "Fans (You Don't Follow)", icon: UserCheck, list: data.fans },
         { id: 'closeFriends', label: 'Close Friends', icon: Heart, list: data.closeFriends },
+        { id: 'blocked', label: 'Blocked Profiles', icon: Shield, list: data.blocked },
 
     ];
 }
