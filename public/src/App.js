@@ -401,7 +401,7 @@ const Dashboard = ({onSignOut})=>{
                         {currentTab.list.map(user => <UserListItem key={user.username} user={user} />)}                        
                     </ul>
                 ):(
-                    <div>
+                    <div className="text-center p-10 bg-gray-50 rounded-lg">
                     </div>
                 )}
             </div>
