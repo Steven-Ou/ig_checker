@@ -415,6 +415,9 @@ const Dashboard = ({onSignOut})=>{
             <header className="bg-white shadow-sm">
                 <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <div>
+
+                    </div>
+                    <div>
                         
                     </div>
                 </div>
