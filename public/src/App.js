@@ -430,7 +430,7 @@ const Dashboard = ({onSignOut})=>{
                         <nav className="bg-white rounded-lg shadow p-4 space-y-1">
                             {tabs.map(tab =>(
                                 <button
-                                    
+                                    key={tab.id}
                                 >
 
                                 </button>
