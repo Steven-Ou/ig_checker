@@ -413,7 +413,9 @@ const Dashboard = ({onSignOut})=>{
     return(
         <div className="min-h-screen bg-gray-100">
             <header className="bg-white shadow-sm">
-                
+                <div>
+                    
+                </div>
             </header>
         </div>
     );
