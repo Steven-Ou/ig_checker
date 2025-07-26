@@ -448,4 +448,4 @@ const Dashboard = ({onSignOut})=>{
             </main>
         </div>
     );
-}
+};
