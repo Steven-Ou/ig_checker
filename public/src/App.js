@@ -408,4 +408,6 @@ const Dashboard = ({onSignOut})=>{
             </div>
         );
     };
+
+    //Using JSX that defines the UI for the dashboard.
 }
