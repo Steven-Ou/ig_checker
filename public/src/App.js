@@ -431,6 +431,7 @@ const Dashboard = ({onSignOut})=>{
                             {tabs.map(tab =>(
                                 <button
                                     key={tab.id}
+                                    onClick={()=> setActiveTab(tab.id)}
                                 >
 
                                 </button>
