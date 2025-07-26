@@ -411,7 +411,7 @@ const Dashboard = ({onSignOut})=>{
 
     //Using JSX that defines the UI for the dashboard.
     return(
-        <div>
+        <div className="min-h-screen bg-gray-100">
             
         </div>
     );
