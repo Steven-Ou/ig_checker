@@ -429,8 +429,10 @@ const Dashboard = ({onSignOut})=>{
                     <aside className="lg:col-span-1">
                         <nav className="bg-white rounded-lg shadow p-4 space-y-1">
                             {tabs.map(tab =>(
-                                <button>
+                                <button
                                     
+                                >
+
                                 </button>
                             ))}
                         </nav>
