@@ -8,6 +8,7 @@ import { ArrowUpCircle, UserCheck, UserX, Heart, Shield, Clock, Users, FileUp, B
 import { get } from "http";
 import parseJson from "parse-json";
 import { unsubscribe } from "diagnostics_channel";
+import { render } from "@testing-library/react";
 
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -441,7 +442,7 @@ const Dashboard = ({onSignOut})=>{
                         </nav>
                     </aside>
                     <div>
-                        
+                        {renderContent()}
                     </div>
                 </div>
             </main>
