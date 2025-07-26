@@ -426,7 +426,7 @@ const Dashboard = ({onSignOut})=>{
             </header>
             <main className="container mx-auto p-4 sm:p-6 lg:p-8">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                    <aside>
+                    <aside className="lg:col-span-1">
                         <nav>
                             
                         </nav>
