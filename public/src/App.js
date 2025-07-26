@@ -441,7 +441,7 @@ const Dashboard = ({onSignOut})=>{
                             ))}
                         </nav>
                     </aside>
-                    <div>
+                    <div className="lg:col-span-3 bg-white rounded-lg shadow p-6 md:p-8">
                         {renderContent()}
                     </div>
                 </div>
