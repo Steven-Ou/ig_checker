@@ -419,6 +419,7 @@ const Dashboard = ({onSignOut})=>{
                         <h1 className="text-2xl font-bold text-gray-800">Insights Dashboard</h1>         
                     </div>
                     <div>
+                        <span className="text-sm text-gray-500 mr-4">User ID: {userId}</span>
 
                     </div>
                 </div>
