@@ -428,7 +428,9 @@ const Dashboard = ({onSignOut})=>{
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     <aside className="lg:col-span-1">
                         <nav className="bg-white rounded-lg shadow p-4 space-y-1">
-                            
+                            {tabs.map(tab =>(
+                                
+                            ))}
                         </nav>
                     </aside>
                 </div>
