@@ -420,7 +420,7 @@ const Dashboard = ({onSignOut})=>{
                     </div>
                     <div>
                         <span className="text-sm text-gray-500 mr-4">User ID: {userId}</span>
-
+                        <button onClick={onSignOut} className="text-sm text-blue-600 hover:underline">New Upload</button>
                     </div>
                 </div>
             </header>
