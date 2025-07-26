@@ -432,6 +432,8 @@ const Dashboard = ({onSignOut})=>{
                                 <button
                                     key={tab.id}
                                     onClick={()=> setActiveTab(tab.id)}
+                                    className={`w-full flex items-center space-x-3 px-4 py-3 rounded-md text-left transition-colors ${activeTab === tab.id ? 'bg-blue-100 text-blue-700 font-semibold' : 'text-gray-600 hover:bg-gray-100'}`}
+
                                 >
 
                                 </button>
