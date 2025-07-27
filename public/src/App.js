@@ -472,6 +472,7 @@ export default function App(){
             setIsAuthReady(true);
         };
 
-        
+        // Handles the initial sign-in process. 
+
     },[]);
 }
