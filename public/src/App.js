@@ -473,6 +473,10 @@ export default function App(){
         };
 
         // Handles the initial sign-in process. 
-
+        const authHandler = async()=>{
+            if(!app){
+                
+            }
+        }
     },[]);
 }
