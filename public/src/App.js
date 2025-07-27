@@ -456,6 +456,7 @@ const Dashboard = ({onSignOut})=>{
  * UploadScreen or the Dashboard.
  */
 
+// This useEffect hook runs once when the app starts.
 export default function App(){
     // State to track if the user has already uploaded data to Firestore.
     const [hasData, setHasData] = useState(false);
