@@ -451,5 +451,5 @@ const Dashboard = ({onSignOut})=>{
 };
 
 /**
- * 
+ * This is the main root component of the application.
  */
