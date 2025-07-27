@@ -459,5 +459,7 @@ const Dashboard = ({onSignOut})=>{
 export default function App(){
     // State to track if the user has already uploaded data to Firestore.
     const [hasData, setHasData] = useState(false);
+    const [isAuthReady, setIsAuthReady] = useState(false);
+
  
 }
