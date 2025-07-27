@@ -465,7 +465,9 @@ export default function App(){
 
     useEffect(()=>{
         const checkUserData = async(user)=>{
-            
-        }
+            if(user){
+                
+            }
+        };
     },[]);
 }
