@@ -466,7 +466,7 @@ export default function App(){
     useEffect(()=>{
         const checkUserData = async(user)=>{
             if(user){
-                
+                const userHasData = (await getDocs(collection(db, `artifacts/${appId}/users`, user.uid, 'followers'))).size > 0;
             }
         };
     },[]);
