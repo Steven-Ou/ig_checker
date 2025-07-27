@@ -462,5 +462,7 @@ export default function App(){
     // State to prevent showing anything until Firebase authentication is ready.
     const [isAuthReady, setIsAuthReady] = useState(false);
 
- 
+    useEffect(()=>{
+
+    },[]);
 }
