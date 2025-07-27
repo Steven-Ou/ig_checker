@@ -464,6 +464,8 @@ export default function App(){
     const [isAuthReady, setIsAuthReady] = useState(false);
 
     useEffect(()=>{
-
+        const checkUserData = async(user)=>{
+            
+        }
     },[]);
 }
