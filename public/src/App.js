@@ -453,5 +453,5 @@ const Dashboard = ({onSignOut})=>{
 /**
  * This is the main root component of the application.
  * It handles the top-level logic of deciding whether to show the
-
+ * UploadScreen or the Dashboard.
  */
