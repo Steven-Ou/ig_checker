@@ -455,3 +455,7 @@ const Dashboard = ({onSignOut})=>{
  * It handles the top-level logic of deciding whether to show the
  * UploadScreen or the Dashboard.
  */
+
+export default function App(){
+    
+}
