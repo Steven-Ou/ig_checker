@@ -469,6 +469,7 @@ export default function App(){
                 const userHasData = (await getDocs(collection(db, `artifacts/${appId}/users`, user.uid, 'followers'))).size > 0;
                 setHasData(userHasData);
             }
+            setIsAuthReady(true);
         };
     },[]);
 }
