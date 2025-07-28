@@ -474,6 +474,7 @@ export default function App(){
 
         // Handles the initial sign-in process. 
         const authHandler = async()=>{
+            // If Firebase isn't initialized, show an error and stop.            
             if(!app){
                 console.error("Firebase is not initialized. Check your environment variables.");
                 setIsAuthReady(true); // Prevents the app from hanging if Firebase isn't set up.
