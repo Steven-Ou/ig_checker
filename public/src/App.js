@@ -483,6 +483,8 @@ export default function App(){
                 if(!auth.currentUser){
                     const userCredential = await signInAnonymously(auth)
                     await checkUserData(userCredential.user);
+                }else{
+                    await checkUserData(auth.currentUser);
                 }
             }catch(error){
 
