@@ -487,6 +487,7 @@ export default function App(){
                     await checkUserData(auth.currentUser);
                 }
             }catch(signInError){
+                console.error("Anonymous sign-in failed:", signInError);
 
             }
         }
