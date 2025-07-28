@@ -481,6 +481,7 @@ export default function App(){
                 return;
             }
             try{
+                // Signs the user in anonymously to get a unique ID for the database.            
                 if(!auth.currentUser){
                     const userCredential = await signInAnonymously(auth)
                     await checkUserData(userCredential.user);
