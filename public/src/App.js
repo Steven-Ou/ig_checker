@@ -478,7 +478,6 @@ export default function App(){
                 console.error("Firebase is not initialized. Check your environment variables.");
                 setIsAuthReady(true); // Prevents the app from hanging if Firebase isn't set up.
                 return;
-
             }
         }
     },[]);
