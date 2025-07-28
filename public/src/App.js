@@ -480,9 +480,11 @@ export default function App(){
                 return;
             }
             try{
-
+                if(!auth.currentUser){
+                    const userCredential = await signInAnonymously(auth)
+                }
             }catch(error){
-                
+
             }
         }
     },[]);
