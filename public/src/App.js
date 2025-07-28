@@ -488,7 +488,7 @@ export default function App(){
                 }
             }catch(signInError){
                 console.error("Anonymous sign-in failed:", signInError);
-
+                setIsAuthReady(true);
             }
         }
     },[]);
