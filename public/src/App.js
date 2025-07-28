@@ -491,6 +491,7 @@ export default function App(){
                 setIsAuthReady(true);
             }
         };
-        
+            
+        authHandler();
     },[]);
 }
