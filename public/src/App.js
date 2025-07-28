@@ -490,6 +490,7 @@ export default function App(){
                 console.error("Anonymous sign-in failed:", signInError);
                 setIsAuthReady(true);
             }
-        }
+        };
+        
     },[]);
 }
