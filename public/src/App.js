@@ -479,6 +479,11 @@ export default function App(){
                 setIsAuthReady(true); // Prevents the app from hanging if Firebase isn't set up.
                 return;
             }
+            try{
+
+            }catch(error){
+                
+            }
         }
     },[]);
 }
