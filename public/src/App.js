@@ -486,7 +486,7 @@ export default function App(){
                 }else{
                     await checkUserData(auth.currentUser);
                 }
-            }catch(error){
+            }catch(signInError){
 
             }
         }
