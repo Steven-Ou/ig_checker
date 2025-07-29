@@ -485,7 +485,7 @@ export default function App(){
                 // Signs the user in anonymously to get a unique ID for the database.            
                 const userCredential = typeof __initial_auth_token !== 'undefined'
                     ? await signInWithCustomToken(auth, __initial_auth_token)
-   
+                    : await signInAnonymously(auth);
                 if(!auth.currentUser){
                     const userCredential = await signInAnonymously(auth)
                     await checkUserData(userCredential.user);
