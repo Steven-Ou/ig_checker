@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 // Imports functions from the Firebase SDK to connect to and interact with Firebase services.
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, getDoc, setDoc, collection, getDocs, writeBatch } from 'firebase/firestore';
+import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
 // Imports icon components from the 'lucide-react' library to make the UI look nice.
 import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2 } from 'lucide-react';
 
@@ -380,6 +380,7 @@ const Dashboard = ({ onSignOut }) => {
                 setUserId(user.uid);
                 fetchData(user.uid);
             } else {
+                // If the user is somehow signed out, go back to the upload screen.
                 onSignOut();
             }
         });
@@ -486,18 +487,20 @@ export default function App() {
     useEffect(() => {
         // Checks if the current user has any data stored in Firestore.
         const checkUserData = async (user) => {
+            // If there is a user...
             if (user) {
-                // Queries the 'followers' collection to see if any documents exist.
+                // ...query the 'followers' collection to see if any documents exist for this user.
                 const userHasData = (await getDocs(collection(db, `artifacts/${appId}/users`, user.uid, 'followers'))).size > 0;
+                // Update the state based on whether data was found.
                 setHasData(userHasData);
             }
-            // Once the check is complete, set auth to ready.
+            // Once the check is complete, set auth to ready so the app can render.
             setIsAuthReady(true);
         };
 
         // Handles the initial sign-in process.
         const authHandler = async () => {
-            // If Firebase isn't initialized, show an error and stop.
+            // If Firebase isn't initialized (e.g., missing .env variables), log an error and stop.
             if (!app) {
                 console.error("Firebase is not initialized. Check your environment variables.");
                 setIsAuthReady(true);
@@ -505,33 +508,21 @@ export default function App() {
             }
             try {
                 // Signs the user in anonymously to get a unique ID for the database.
-                const userCredential = typeof __initial_auth_token !== 'undefined'
-                    ? await signInWithCustomToken(auth, __initial_auth_token)
-                    : await signInAnonymously(auth);
+                const userCredential = await signInAnonymously(auth);
                 // After sign-in, check if they have existing data.
                 await checkUserData(userCredential.user);
             } catch (error) {
+                // Log any authentication errors.
                 console.error("Authentication failed:", error);
-                // Fallback logic in case of an error.
-                try {
-                    if (!auth.currentUser) {
-                        const userCredential = await signInAnonymously(auth);
-                        await checkUserData(userCredential.user);
-                    } else {
-                        await checkUserData(auth.currentUser);
-                    }
-                } catch (signInError) {
-                    console.error("Anonymous sign-in failed:", signInError);
-                    setIsAuthReady(true);
-                }
+                setIsAuthReady(true);
             }
         };
 
-        // Call the authentication handler function.
+        // Call the authentication handler function when the component mounts.
         authHandler();
     }, []); // The empty array [] means this effect runs only once on mount.
 
-    // Callback function passed to the UploadScreen to switch to the dashboard view.
+    // Callback function passed to the UploadScreen to switch to the dashboard view upon success.
     const handleUploadComplete = () => {
         setHasData(true);
     };
