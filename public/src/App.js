@@ -541,6 +541,7 @@ export default function App() {
         setHasData(false);
     };
 
+    // Show a loading indicator while Firebase auth is initializing.
     if(!isAuthReady){
         return(
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
