@@ -573,4 +573,8 @@ export default function App() {
             </div>
         );
     }
+
+    // This is the main conditional rendering logic:
+    // If the user has data, show the Dashboard. Otherwise, show the UploadScreen.
+    return hasData ? <Dashboard onSignOut={handleSignOut} /> : <UploadScreen onUploadComplete={handleUploadComplete} />;
 }
