@@ -554,7 +554,7 @@ export default function App() {
                         </path>
                     </svg>
                     <p className="mt-4 text-gray-600">
-
+                        Authenticating...
                     </p>
                 </div>
             </div>
