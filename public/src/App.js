@@ -493,7 +493,8 @@ export default function App(){
                 setIsAuthReady(true);
             }
         };
-            
+        
+        //Call the authentication handler function
         authHandler();
     },[]);//This will only run once on mount.
 
