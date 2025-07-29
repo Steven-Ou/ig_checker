@@ -544,7 +544,7 @@ export default function App() {
     if(!isAuthReady){
         return(
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div>
+                <div className="text-center">
                     <svg>
                         <circle>
 
