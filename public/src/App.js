@@ -487,7 +487,7 @@ export default function App(){
                     ? await signInWithCustomToken(auth, __initial_auth_token)
                     : await signInAnonymously(auth);
                 // After sign-in, check if they have existing data.
-
+                    await checkUserData(userCredential.user);
                 if(!auth.currentUser){
                     const userCredential = await signInAnonymously(auth)
                     await checkUserData(userCredential.user);
