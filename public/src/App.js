@@ -466,6 +466,7 @@ export default function App(){
     useEffect(()=>{
         const checkUserData = async(user)=>{
             if(user){
+                //Queries the 'followers' collection to see if any documents exist.
                 const userHasData = (await getDocs(collection(db, `artifacts/${appId}/users`, user.uid, 'followers'))).size > 0;
                 setHasData(userHasData);
             }
