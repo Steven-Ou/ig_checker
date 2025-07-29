@@ -489,7 +489,7 @@ export default function App(){
                 }else{
                     await checkUserData(auth.currentUser);
                 }
-            }catch(signInError){
+            }catch(error){
                 console.error("Anonymous sign-in failed:", signInError);
                 setIsAuthReady(true);
             }
