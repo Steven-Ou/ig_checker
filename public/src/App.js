@@ -509,6 +509,6 @@ export default function App(){
     },[]);//This will only run once on mount.
 
     const handleUploadComplete =()=>{
-        
+        setHasData(true);
     };
 }
