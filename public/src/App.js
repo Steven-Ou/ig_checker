@@ -498,12 +498,10 @@ export default function App(){
                         }else{
                             await checkUserData(auth.currentUser);
                         }
+                    }catch(signInError){
+                        console.error("Anonymous sign-in failed:", signInError);
+                        setIsAuthReady(true);
                     }
-                    
-            }catch(error){
-                console.error("Anonymous sign-in failed:", signInError);
-                setIsAuthReady(true);
-            }
         };
         
         //Call the authentication handler function
