@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 // Imports functions from the Firebase SDK to connect to and interact with Firebase services.
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
+import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
 // Imports icon components from the 'lucide-react' library to make the UI look nice.
 import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2 } from 'lucide-react';
@@ -32,8 +32,8 @@ if (firebaseConfig.apiKey && firebaseConfig.projectId) {
 // These lines create instances of the Firebase services we'll use throughout the app.
 const auth = getAuth(app); // Gets the authentication service instance.
 const db = getFirestore(app); // Gets the Firestore database service instance.
-// This gets the unique ID for this specific application instance, provided by the environment.
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+// This gets the unique ID for this specific application instance from the Firebase config.
+const appId = firebaseConfig.appId || 'default-app-id';
 
 // --- Helper Functions ---
 
