@@ -542,6 +542,10 @@ export default function App() {
     };
 
     if(!isAuthReady){
-        
+        return(
+            <div>
+                
+            </div>
+        );
     }
 }
