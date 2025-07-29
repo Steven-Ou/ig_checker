@@ -561,4 +561,16 @@ export default function App() {
             </div>
         );
     }
+    
+    //Show an error message if Firebase failed to initialize (e.g., missing .env variables).
+    if (!app) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
+                <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Configuration Error</h2>
+                    <p className="text-gray-700">Firebase configuration is missing. Please make sure your <code>.env.local</code> file is set up correctly with your Firebase project credentials.</p>
+                </div>
+            </div>
+        );
+    }
 }
