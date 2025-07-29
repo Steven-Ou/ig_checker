@@ -543,7 +543,7 @@ export default function App() {
 
     if(!isAuthReady){
         return(
-            <div>
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div>
                     <svg>
                         <circle>
@@ -554,7 +554,7 @@ export default function App() {
                         </path>
                     </svg>
                     <p>
-                        
+
                     </p>
                 </div>
             </div>
