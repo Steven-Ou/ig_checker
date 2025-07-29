@@ -540,4 +540,8 @@ export default function App() {
     const handleSignOut =()=>{
         setHasData(false);
     };
+
+    if(!isAuthReady){
+        
+    }
 }
