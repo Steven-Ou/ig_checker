@@ -553,7 +553,7 @@ export default function App() {
 
                         </path>
                     </svg>
-                    <p>
+                    <p className="mt-4 text-gray-600">
 
                     </p>
                 </div>
