@@ -495,7 +495,7 @@ export default function App(){
         };
             
         authHandler();
-    },[]);
+    },[]);//This will only run once on mount.
 
-    
+
 }
