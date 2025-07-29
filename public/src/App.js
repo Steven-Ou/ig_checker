@@ -490,6 +490,8 @@ export default function App(){
                     await checkUserData(userCredential.user);
 
                 }catch(error){
+                    console.error("Authentication failed:", error);
+
                     if(!auth.currentUser){
                         const userCredential = await signInAnonymously(auth)
                         await checkUserData(userCredential.user);
