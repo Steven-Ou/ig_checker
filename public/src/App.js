@@ -491,13 +491,15 @@ export default function App(){
 
                 }catch(error){
                     console.error("Authentication failed:", error);
-
-                    if(!auth.currentUser){
-                        const userCredential = await signInAnonymously(auth)
-                        await checkUserData(userCredential.user);
-                    }else{
-                        await checkUserData(auth.currentUser);
+                    try{
+                        if(!auth.currentUser){
+                            const userCredential = await signInAnonymously(auth)
+                            await checkUserData(userCredential.user);
+                        }else{
+                            await checkUserData(auth.currentUser);
+                        }
                     }
+                    
             }catch(error){
                 console.error("Anonymous sign-in failed:", signInError);
                 setIsAuthReady(true);
