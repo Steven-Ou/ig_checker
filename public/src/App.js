@@ -535,8 +535,9 @@ export default function App() {
     const handleUploadComplete = () => {
         setHasData(true);
     };
-
+    
+    // Callback function for the "New Upload" button to go back to the upload screen.
     const handleSignOut =()=>{
-
+        setHasData(false);
     };
 }
