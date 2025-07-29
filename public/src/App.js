@@ -488,12 +488,14 @@ export default function App(){
                     : await signInAnonymously(auth);
                 // After sign-in, check if they have existing data.
                     await checkUserData(userCredential.user);
-                if(!auth.currentUser){
-                    const userCredential = await signInAnonymously(auth)
-                    await checkUserData(userCredential.user);
-                }else{
-                    await checkUserData(auth.currentUser);
-                }
+
+                }catch(error){
+                    if(!auth.currentUser){
+                        const userCredential = await signInAnonymously(auth)
+                        await checkUserData(userCredential.user);
+                    }else{
+                        await checkUserData(auth.currentUser);
+                    }
             }catch(error){
                 console.error("Anonymous sign-in failed:", signInError);
                 setIsAuthReady(true);
