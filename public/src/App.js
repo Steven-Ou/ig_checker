@@ -535,4 +535,8 @@ export default function App() {
     const handleUploadComplete = () => {
         setHasData(true);
     };
+
+    const handleSignOut =()=>{
+
+    };
 }
