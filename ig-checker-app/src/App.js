@@ -6,7 +6,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
 // Imports icon components from the 'lucide-react' library to make the UI look nice.
-import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2 } from 'lucide-react';
+import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2, ChevronDown } from 'lucide-react';
 
 // --- Firebase Configuration ---
 // This object holds your unique project keys. It securely reads these values from an
@@ -167,6 +167,8 @@ const UploadScreen = ({ onUploadComplete }) => {
     const [modal, setModal] = useState({ show: false, title: '', message: '' });
     // State to store the current user's unique ID from Firebase Auth.
     const [userId, setUserId] = useState(null);
+    // State to manage which accordion section is currently open.
+    const [activeSection, setActiveSection] = useState('followers');
 
     // 'useEffect' hook to listen for authentication changes. Runs once when the component mounts.
     useEffect(() => {
@@ -185,6 +187,10 @@ const UploadScreen = ({ onUploadComplete }) => {
     // A callback function to update the 'files' state when a file is selected.
     const handleFileSelect = (file, type) => {
         setFiles(prev => ({ ...prev, [type]: file }));
+        // Automatically open the next required section for a smoother workflow.
+        if (type === 'followers') {
+            setActiveSection('following');
+        }
     };
 
     // This function handles the main logic of parsing files and uploading them to the database.
@@ -267,10 +273,20 @@ const UploadScreen = ({ onUploadComplete }) => {
             setIsLoading(false);
         }
     };
+    
+    // An array to define the structure of our new accordion UI.
+    const uploadSections = [
+        { key: 'followers', label: "1. Followers File (Required)", requiredFileName: "followers_1.json" },
+        { key: 'following', label: "2. Following File (Required)", requiredFileName: "following.json" },
+        { key: 'blocked', label: "Blocked Profiles (Optional)", requiredFileName: "blocked_profiles.json" },
+        { key: 'closeFriends', label: "Close Friends (Optional)", requiredFileName: "close_friends.json" },
+        { key: 'pendingRequests', label: "Pending Follow Requests (Optional)", requiredFileName: "pending_follow_requests.json" },
+    ];
+
 
     // The JSX that defines the UI for the upload screen.
     return (
-        <div className="max-w-4xl w-full mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
+        <div className="max-w-2xl w-full mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
             {/* Conditionally render the modal if modal.show is true. */}
             {modal.show && <Modal title={modal.title} message={modal.message} onClose={() => setModal({ show: false, title: '', message: '' })} />}
             <div className="text-center mb-8">
@@ -284,14 +300,31 @@ const UploadScreen = ({ onUploadComplete }) => {
                 <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need the files from the <code>followers_and_following</code> folder.</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                {/* Render the reusable FileInput components for each required/optional file. */}
-                <FileInput onFileSelect={(file) => handleFileSelect(file, 'followers')} label="1. Followers File (Required)" requiredFileName="followers_1.json" />
-                <FileInput onFileSelect={(file) => handleFileSelect(file, 'following')} label="2. Following File (Required)" requiredFileName="following.json" />
-                <FileInput onFileSelect={(file) => handleFileSelect(file, 'blocked')} label="Blocked Profiles (Optional)" requiredFileName="blocked_profiles.json" />
-                <FileInput onFileSelect={(file) => handleFileSelect(file, 'closeFriends')} label="Close Friends (Optional)" requiredFileName="close_friends.json" />
-                <FileInput onFileSelect={(file) => handleFileSelect(file, 'pendingRequests')} label="Pending Follow Requests (Optional)" requiredFileName="pending_follow_requests.json" />
+            <div className="space-y-4 mb-8">
+                {uploadSections.map(({ key, label, requiredFileName }) => (
+                    <div key={key} className="border border-gray-200 rounded-lg overflow-hidden transition-all duration-300">
+                        <button
+                            onClick={() => setActiveSection(activeSection === key ? null : key)}
+                            className="w-full text-left p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center focus:outline-none"
+                        >
+                            <span className={`font-semibold ${files[key] ? 'text-green-600' : 'text-gray-700'}`}>
+                                {label} {files[key] ? '✓ Uploaded' : ''}
+                            </span>
+                            <ChevronDown className={`h-5 w-5 text-gray-500 transform transition-transform ${activeSection === key ? 'rotate-180' : ''}`} />
+                        </button>
+                        {activeSection === key && (
+                            <div className="p-6 bg-white border-t border-gray-200">
+                                <FileInput
+                                    onFileSelect={(file) => handleFileSelect(file, key)}
+                                    label={`Upload "${requiredFileName}"`}
+                                    requiredFileName={requiredFileName}
+                                />
+                            </div>
+                        )}
+                    </div>
+                ))}
             </div>
+
 
             <button
                 onClick={handleUpload}
