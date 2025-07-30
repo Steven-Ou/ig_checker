@@ -6,7 +6,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
 // Imports icon components from the 'lucide-react' library to make the UI look nice.
-import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2, Home } from 'lucide-react';
+import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2 } from 'lucide-react';
 
 // --- Firebase Configuration ---
 // This object holds your unique project keys. It securely reads these values from an
@@ -335,9 +335,7 @@ const Dashboard = ({ onSignOut }) => {
     const [data, setData] = useState({});
     // State to manage the loading state while data is being fetched.
     const [loading, setLoading] = useState(true);
-    // State to hold the current user's ID.
-    const [userId, setUserId] = useState(null);
-
+    
     // 'useCallback' memoizes this function so it isn't recreated on every render.
     const fetchData = useCallback(async (uid) => {
         setLoading(true);
@@ -368,7 +366,6 @@ const Dashboard = ({ onSignOut }) => {
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
             if (user) {
-                setUserId(user.uid);
                 fetchData(user.uid);
             } else {
                 onSignOut();
