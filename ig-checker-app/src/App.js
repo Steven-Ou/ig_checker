@@ -461,7 +461,7 @@ export default function App() {
                 <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8">
                     <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setPage('home')}>
                         <BarChart2 className="h-10 w-10 text-blue-600"/>
-                        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">IG Checker</h1>
+                        <h1 className="text-3xl font-bold text-gray-800 tracking-tight items-center">IG Checker</h1>
                     </div>
                     {userId && (
                         <div className="text-right">
