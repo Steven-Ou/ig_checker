@@ -55,16 +55,16 @@ const extractUsernames = (data, key) => {
 // --- React Components ---
 
 /**
- * NEW: The introduction page for the application.
+ * UPDATED: The introduction page for the application with a new design.
  */
 const HomeScreen = ({ onGetStarted }) => (
-    <div className="max-w-3xl w-full mx-auto text-center animate-fade-in">
-        <div className="bg-white rounded-2xl shadow-xl p-8 md:p-12">
+    <div className="w-full max-w-3xl mx-auto text-center animate-fade-in p-4">
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30">
             <BarChart2 className="mx-auto h-16 w-16 text-blue-600" />
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mt-6">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mt-6 tracking-tight">
                 IG Checker
             </h1>
-            <p className="mt-4 text-lg text-gray-600 max-w-xl mx-auto">
+            <p className="mt-4 text-lg text-gray-700 max-w-xl mx-auto">
                 Gain insights into your Instagram audience. Find out who doesn't follow you back, discover your biggest fans, and more.
             </p>
             <p className="mt-2 text-sm text-gray-500 max-w-xl mx-auto">
@@ -383,11 +383,8 @@ const Dashboard = ({ onSignOut }) => {
     );
 };
 
-/**
- * This is the main root component of the application.
- */
 export default function App() {
-    const [page, setPage] = useState('loading'); // NEW: 'loading', 'home', 'upload', 'dashboard'
+    const [page, setPage] = useState('loading');
     const [isAuthReady, setIsAuthReady] = useState(false);
     const [userId, setUserId] = useState(null);
 
@@ -401,7 +398,7 @@ export default function App() {
                 try {
                     const userCredential = await signInAnonymously(auth);
                     setUserId(userCredential.user.uid);
-                    setPage('home'); // New user always starts at home
+                    setPage('home');
                 } catch (error) {
                     console.error("Anonymous sign-in failed:", error);
                     setPage('error');
@@ -456,12 +453,13 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-100 flex flex-col items-center justify-center p-4">
+        // UPDATED: Added a more vibrant gradient background
+        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-100 flex flex-col items-center justify-center p-4">
              {page !== 'home' && isAuthReady && (
-                <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8">
+                <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8 pt-4">
                     <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setPage('home')}>
                         <BarChart2 className="h-10 w-10 text-blue-600"/>
-                        <h1 className="text-3xl font-bold text-gray-800 tracking-tight items-center">IG Checker</h1>
+                        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">IG Checker</h1>
                     </div>
                     {userId && (
                         <div className="text-right">
