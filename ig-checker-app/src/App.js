@@ -45,11 +45,16 @@ const extractUsernames = (data, key) => {
     if (!data) return [];
     const list = data[key] || (Array.isArray(data) ? data : []);
     if (!Array.isArray(list)) return [];
+    
+    // Maps over the raw list and filters out any invalid usernames
     return list.map(item => ({
         username: item.string_list_data[0].value,
         url: item.string_list_data[0].href,
         timestamp: item.string_list_data[0].timestamp,
-    }));
+    }))
+    // *** FIX IS HERE ***
+    // Filter out any usernames that use Firestore's reserved `__name__` format.
+    .filter(user => !(user.username.startsWith('__') && user.username.endsWith('__')));
 };
 
 // --- React Components ---
@@ -308,8 +313,6 @@ const Dashboard = ({ onSignOut }) => {
             combinedData.notFollowingBack = (combinedData.following || []).filter(f => !followersSet.has(f.username));
 
             const followingSet = new Set((combinedData.following || []).map(f => f.username));
-            // *** FIX IS HERE ***
-            // Correctly filter followers list to find fans
             combinedData.fans = (combinedData.followers || []).filter(f => !followingSet.has(f.username));
             
             setData(combinedData);
