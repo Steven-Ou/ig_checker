@@ -54,9 +54,6 @@ const extractUsernames = (data, key) => {
 
 // --- React Components ---
 
-/**
- * UPDATED: The introduction page for the application with a new design.
- */
 const HomeScreen = ({ onGetStarted }) => (
     <div className="w-full max-w-3xl mx-auto text-center animate-fade-in p-4">
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30">
@@ -176,7 +173,11 @@ const UploadScreen = ({ onUploadComplete }) => {
             const batch = writeBatch(db);
             
             const uploadList = async (list, collectionName) => {
-                const collectionRef = collection(db, `artifacts/${appId}/users`, userId, collectionName);
+                // *** FIX IS HERE ***
+                // Ensure we don't try to write to an empty collection name
+                if (!collectionName || list.length === 0) return;
+
+                const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`);
                 list.forEach(item => {
                     const docRef = doc(collectionRef, item.username);
                     batch.set(docRef, item);
@@ -194,7 +195,7 @@ const UploadScreen = ({ onUploadComplete }) => {
                 }
             }
             
-            const snapshotRef = doc(db, `artifacts/${appId}/users`, userId, 'snapshots', new Date().toISOString());
+            const snapshotRef = doc(db, `artifacts/${appId}/users/${userId}/snapshots/${new Date().toISOString()}`);
             batch.set(snapshotRef, {
                 createdAt: new Date(),
                 followerCount: followers.length,
@@ -207,7 +208,8 @@ const UploadScreen = ({ onUploadComplete }) => {
             setTimeout(onUploadComplete, 2000);
 
         } catch (error) {
-            setModal({ show: true, title: 'Upload Failed', message: error.message });
+            console.error("Upload Error:", error);
+            setModal({ show: true, title: 'Upload Failed', message: `An error occurred during upload. Please check the console for details. Message: ${error.message}` });
         } finally {
             setIsLoading(false);
         }
@@ -297,7 +299,7 @@ const Dashboard = ({ onSignOut }) => {
         try {
             const collections = ['followers', 'following', 'blocked', 'closeFriends', 'pendingRequests'];
             const dataPromises = collections.map(async (colName) => {
-                const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/users`, uid, colName));
+                const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${uid}/${colName}`));
                 return { [colName]: querySnapshot.docs.map(doc => doc.data()) };
             });
 
@@ -342,21 +344,22 @@ const Dashboard = ({ onSignOut }) => {
             return <div className="text-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div></div>;
         }
         const currentTab = tabs.find(t => t.id === activeTab);
-        if (!currentTab || !currentTab.list) {
-            return <div className="text-center p-10 text-gray-500">No data available for this section.</div>;
+        if (!currentTab || !currentTab.list || currentTab.list.length === 0) {
+            return (
+                 <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                    <h3 className="text-2xl font-bold mb-6 text-gray-800">{currentTab.label} (0)</h3>
+                    <div className="text-center py-12 px-6 bg-gray-50 rounded-lg">
+                        <p className="text-gray-600">No accounts found in this category.</p>
+                    </div>
+                </div>
+            )
         }
         return (
              <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
                 <h3 className="text-2xl font-bold mb-6 text-gray-800">{currentTab.label} ({currentTab.list.length})</h3>
-                {currentTab.list.length > 0 ? (
-                    <ul className="space-y-3">
-                        {currentTab.list.map(user => <UserListItem key={user.username} user={user} />)}
-                    </ul>
-                ) : (
-                    <div className="text-center py-12 px-6 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600">No accounts found in this category.</p>
-                    </div>
-                )}
+                <ul className="space-y-3">
+                    {currentTab.list.map(user => <UserListItem key={user.username} user={user} />)}
+                </ul>
             </div>
         );
     };
@@ -392,7 +395,7 @@ export default function App() {
         const authHandler = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 setUserId(user.uid);
-                const userHasData = (await getDocs(collection(db, `artifacts/${appId}/users`, user.uid, 'followers'))).size > 0;
+                const userHasData = (await getDocs(collection(db, `artifacts/${appId}/users/${user.uid}/followers`))).size > 0;
                 setPage(userHasData ? 'dashboard' : 'home');
             } else {
                 try {
@@ -453,7 +456,6 @@ export default function App() {
     };
 
     return (
-        // UPDATED: Added a more vibrant gradient background
         <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-100 flex flex-col items-center justify-center p-4">
              {page !== 'home' && isAuthReady && (
                 <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8 pt-4">
