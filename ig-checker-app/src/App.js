@@ -173,8 +173,6 @@ const UploadScreen = ({ onUploadComplete }) => {
             const batch = writeBatch(db);
             
             const uploadList = async (list, collectionName) => {
-                // *** FIX IS HERE ***
-                // Ensure we don't try to write to an empty collection name
                 if (!collectionName || list.length === 0) return;
 
                 const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`);
@@ -310,6 +308,8 @@ const Dashboard = ({ onSignOut }) => {
             combinedData.notFollowingBack = (combinedData.following || []).filter(f => !followersSet.has(f.username));
 
             const followingSet = new Set((combinedData.following || []).map(f => f.username));
+            // *** FIX IS HERE ***
+            // Correctly filter followers list to find fans
             combinedData.fans = (combinedData.followers || []).filter(f => !followingSet.has(f.username));
             
             setData(combinedData);
