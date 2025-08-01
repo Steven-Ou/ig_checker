@@ -474,7 +474,7 @@ export default function App() {
                     )}
                 </header>
              )}
-            <main className="w-full flex-grow flex items-center justify-center">
+            <main className="w-full flex-grow">
                 {renderPage()}
             </main>
         </div>
