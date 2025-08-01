@@ -459,7 +459,7 @@ export default function App() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-100 flex flex-col items-center justify-center p-4">
+        <div className="App min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-100 flex flex-col items-center justify-center p-4">
              {page !== 'home' && isAuthReady && (
                 <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8 pt-4">
                     <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setPage('home')}>
@@ -467,7 +467,7 @@ export default function App() {
                         <h1 className="text-3xl font-bold text-gray-800 tracking-tight">IG Checker</h1>
                     </div>
                     {userId && (
-                        <div className="text-right">
+                        <div className="text-center">
                             <p className="text-xs text-gray-400">SESSION ID</p>
                             <p className="text-sm font-mono text-gray-600">{userId}</p>
                         </div>
