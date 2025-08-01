@@ -61,15 +61,15 @@ const extractUsernames = (data, key) => {
 
 const HomeScreen = ({ onGetStarted }) => (
     <div className="w-full max-w-3xl mx-auto animate-fade-in p-4">
-        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30">
+        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30 flex flex-col items-center text-center">
             <BarChart2 className="mx-auto h-16 w-16 text-blue-600" />
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mt-6 tracking-tight text-center">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mt-6 tracking-tight">
                 IG Checker
             </h1>
-            <p className="mt-4 text-lg text-gray-700 max-w-xl mx-auto text-center">
+            <p className="mt-4 text-lg text-gray-700 max-w-xl">
                 Gain insights into your Instagram audience. Find out who doesn't follow you back, discover your biggest fans, and more.
             </p>
-            <p className="mt-2 text-sm text-gray-500 max-w-xl mx-auto text-center">
+            <p className="mt-2 text-sm text-gray-500 max-w-xl">
                 All your data is processed on your device and securely stored for your session only.
             </p>
             <div className="mt-8">
