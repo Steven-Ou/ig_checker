@@ -46,14 +46,14 @@ const extractUsernames = (data, key) => {
     const list = data[key] || (Array.isArray(data) ? data : []);
     if (!Array.isArray(list)) return [];
     
-    // Maps over the raw list and filters out any invalid usernames
-    return list.map(item => ({
+    // Maps over the raw list and filters out any invalid usernames or malformed data
+    return list
+    .filter(item => item && item.string_list_data && item.string_list_data[0] && item.string_list_data[0].value)
+    .map(item => ({
         username: item.string_list_data[0].value,
         url: item.string_list_data[0].href,
         timestamp: item.string_list_data[0].timestamp,
     }))
-    // *** FIX IS HERE ***
-    // Filter out any usernames that use Firestore's reserved `__name__` format.
     .filter(user => !(user.username.startsWith('__') && user.username.endsWith('__')));
 };
 
@@ -221,7 +221,7 @@ const UploadScreen = ({ onUploadComplete }) => {
     const uploadSections = [
         { key: 'followers', label: "1. Followers File (Required)", requiredFileName: "followers_1.json" },
         { key: 'following', label: "2. Following File (Required)", requiredFileName: "following.json" },
-        { key: 'blocked', label: "Blocked Profiles (Optional)", requiredFileName: "blocked_profiles.json" },
+        { key: 'blocked', label: "Blocked Accounts (Optional)", requiredFileName: "blocked_accounts.json" },
         { key: 'closeFriends', label: "Close Friends (Optional)", requiredFileName: "close_friends.json" },
         { key: 'pendingRequests', label: "Pending Follow Requests (Optional)", requiredFileName: "pending_follow_requests.json" },
     ];
