@@ -1,5 +1,6 @@
 // --- React and Library Imports ---
 import React, { useState, useEffect, useCallback } from 'react';
+import './App.css';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
