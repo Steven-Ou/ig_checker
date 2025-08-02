@@ -4,7 +4,7 @@ import './App.css';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
-import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2, ChevronDown, ArrowRight } from 'lucide-react';
+import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2, ChevronDown, ArrowRight, FileText, ClipboardPaste } from 'lucide-react';
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
@@ -42,6 +42,19 @@ const parseJsonFile = (file) => {
   });
 };
 
+const parseTextList = (text) => {
+    if (!text) return [];
+    return text
+      .split('\n')
+      .map(username => username.trim())
+      .filter(username => username) // Remove empty lines
+      .map(username => ({
+        username,
+        url: `https://www.instagram.com/${username}/`,
+        timestamp: Math.floor(Date.now() / 1000),
+      }));
+};
+
 const extractUsernames = (data, key) => {
     if (!data) return [];
     const list = data[key] || (Array.isArray(data) ? data : []);
@@ -60,7 +73,7 @@ const extractUsernames = (data, key) => {
 // --- React Components ---
 
 const HomeScreen = ({ onGetStarted }) => (
-    <div className="w-full max-w-3xl mx-auto animate-fade-in p-4">
+    <div className="w-full max-w-3xl mx-auto text-center animate-fade-in p-4">
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30">
             <BarChart2 className="mx-auto h-16 w-16 text-blue-600" />
             <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mt-6 tracking-tight underline">
@@ -128,7 +141,10 @@ const FileInput = ({ onFileSelect, label, requiredFileName }) => {
 };
 
 const UploadScreen = ({ onUploadComplete }) => {
+    const [inputMode, setInputMode] = useState('file'); // 'file' or 'paste'
     const [files, setFiles] = useState({});
+    const [followersText, setFollowersText] = useState('');
+    const [followingText, setFollowingText] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [modal, setModal] = useState({ show: false, title: '', message: '' });
     const [userId, setUserId] = useState(null);
@@ -136,25 +152,17 @@ const UploadScreen = ({ onUploadComplete }) => {
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                setUserId(user.uid);
-            }
+            if (user) setUserId(user.uid);
         });
         return () => unsubscribe();
     }, []);
 
     const handleFileSelect = (file, type) => {
         setFiles(prev => ({ ...prev, [type]: file }));
-        if (type === 'followers') {
-            setActiveSection('following');
-        }
+        if (type === 'followers') setActiveSection('following');
     };
 
     const handleUpload = async () => {
-        if (!files.followers || !files.following) {
-            setModal({ show: true, title: 'Missing Files', message: 'Please upload both followers and following files.' });
-            return;
-        }
         if (!userId) {
             setModal({ show: true, title: 'Authentication Error', message: 'Could not verify user. Please refresh and try again.' });
             return;
@@ -163,23 +171,32 @@ const UploadScreen = ({ onUploadComplete }) => {
         setIsLoading(true);
 
         try {
-            const followersJson = await parseJsonFile(files.followers);
-            const followingJson = await parseJsonFile(files.following);
+            let followers, following;
+
+            if (inputMode === 'file') {
+                if (!files.followers || !files.following) {
+                    setModal({ show: true, title: 'Missing Files', message: 'Please upload both followers and following files.' });
+                    setIsLoading(false);
+                    return;
+                }
+                const followersJson = await parseJsonFile(files.followers);
+                const followingJson = await parseJsonFile(files.following);
+                followers = extractUsernames(followersJson, 'relationships_followers');
+                following = extractUsernames(followingJson, 'relationships_following');
+            } else { // Paste mode
+                if (!followersText || !followingText) {
+                    setModal({ show: true, title: 'Missing Data', message: 'Please paste both your followers and following lists.' });
+                    setIsLoading(false);
+                    return;
+                }
+                followers = parseTextList(followersText);
+                following = parseTextList(followingText);
+            }
             
-            const followers = extractUsernames(followersJson, 'relationships_followers');
-            const following = extractUsernames(followingJson, 'relationships_following');
-
-            const otherFiles = [
-                { key: 'blocked', file: files.blocked, jsonKey: 'relationships_blocked_users' },
-                { key: 'closeFriends', file: files.closeFriends, jsonKey: 'relationships_close_friends' },
-                { key: 'pendingRequests', file: files.pendingRequests, jsonKey: 'relationships_follow_requests_sent' },
-            ];
-
             const batch = writeBatch(db);
             
             const uploadList = async (list, collectionName) => {
                 if (!collectionName || list.length === 0) return;
-
                 const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`);
                 list.forEach(item => {
                     const docRef = doc(collectionRef, item.username);
@@ -189,14 +206,6 @@ const UploadScreen = ({ onUploadComplete }) => {
 
             await uploadList(followers, 'followers');
             await uploadList(following, 'following');
-            
-            for (const { key, file, jsonKey } of otherFiles) {
-                if (file) {
-                    const json = await parseJsonFile(file);
-                    const data = extractUsernames(json, jsonKey);
-                    await uploadList(data, key);
-                }
-            }
             
             const snapshotRef = doc(db, `artifacts/${appId}/users/${userId}/snapshots/${new Date().toISOString()}`);
             batch.set(snapshotRef, {
@@ -212,7 +221,7 @@ const UploadScreen = ({ onUploadComplete }) => {
 
         } catch (error) {
             console.error("Upload Error:", error);
-            setModal({ show: true, title: 'Upload Failed', message: `An error occurred during upload. Please check the console for details. Message: ${error.message}` });
+            setModal({ show: true, title: 'Upload Failed', message: `An error occurred. Please check the console for details. Message: ${error.message}` });
         } finally {
             setIsLoading(false);
         }
@@ -221,63 +230,75 @@ const UploadScreen = ({ onUploadComplete }) => {
     const uploadSections = [
         { key: 'followers', label: "1. Followers File (Required)", requiredFileName: "followers_1.json" },
         { key: 'following', label: "2. Following File (Required)", requiredFileName: "following.json" },
-        { key: 'blocked', label: "Blocked Accounts (Optional)", requiredFileName: "blocked_accounts.json" },
-        { key: 'closeFriends', label: "Close Friends (Optional)", requiredFileName: "close_friends.json" },
-        { key: 'pendingRequests', label: "Pending Follow Requests (Optional)", requiredFileName: "pending_follow_requests.json" },
     ];
 
     return (
         <div className="max-w-2xl w-full mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
             {modal.show && <Modal title={modal.title} message={modal.message} onClose={() => setModal({ show: false, title: '', message: '' })} />}
-            <div className="text-center mb-8">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4">Upload Your Data</h1>
-                <p className="mt-2 text-gray-600">Securely upload your Instagram JSON files to get started.</p>
+            <div className="text-center mb-6">
+                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4">Provide Your Data</h1>
+                <p className="mt-2 text-gray-600">Choose your preferred method to get started.</p>
             </div>
             
-            <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md mb-8 text-sm">
-                <h2 className="font-semibold text-blue-800">How to get your data:</h2>
-                <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need the files from the <code>followers_and_following</code> folder.</p>
+            <div className="flex justify-center mb-6 p-1 bg-gray-200 rounded-lg">
+                <button onClick={() => setInputMode('file')} className={`w-1/2 py-2 px-4 rounded-md font-semibold transition-colors ${inputMode === 'file' ? 'bg-white text-blue-600 shadow' : 'bg-transparent text-gray-600'}`}>
+                    <FileText className="inline-block mr-2 h-5 w-5"/> File Upload
+                </button>
+                <button onClick={() => setInputMode('paste')} className={`w-1/2 py-2 px-4 rounded-md font-semibold transition-colors ${inputMode === 'paste' ? 'bg-white text-blue-600 shadow' : 'bg-transparent text-gray-600'}`}>
+                   <ClipboardPaste className="inline-block mr-2 h-5 w-5"/> Paste Text
+                </button>
             </div>
 
-            <div className="space-y-4 mb-8">
-                {uploadSections.map(({ key, label, requiredFileName }) => (
-                    <div key={key} className="border border-gray-200 rounded-lg overflow-hidden transition-all duration-300">
-                        <button
-                            onClick={() => setActiveSection(activeSection === key ? null : key)}
-                            className="w-full text-left p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center focus:outline-none"
-                        >
-                            <span className={`font-semibold ${files[key] ? 'text-green-600' : 'text-gray-700'}`}>
-                                {label} {files[key] ? '✓ Uploaded' : ''}
-                            </span>
-                            <ChevronDown className={`h-5 w-5 text-gray-500 transform transition-transform ${activeSection === key ? 'rotate-180' : ''}`} />
-                        </button>
-                        {activeSection === key && (
-                            <div className="p-6 bg-white border-t border-gray-200">
-                                <FileInput
-                                    onFileSelect={(file) => handleFileSelect(file, key)}
-                                    label={`Upload "${requiredFileName}"`}
-                                    requiredFileName={requiredFileName}
-                                />
-                            </div>
-                        )}
+            {inputMode === 'file' ? (
+                <>
+                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md mb-6 text-sm">
+                        <h2 className="font-semibold text-blue-800">How to get your data files:</h2>
+                        <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need the files from the <code>followers_and_following</code> folder.</p>
                     </div>
-                ))}
-            </div>
+                    <div className="space-y-4 mb-8">
+                        {uploadSections.map(({ key, label, requiredFileName }) => (
+                           <FileInput
+                                key={key}
+                                onFileSelect={(file) => handleFileSelect(file, key)}
+                                label={label}
+                                requiredFileName={requiredFileName}
+                            />
+                        ))}
+                    </div>
+                </>
+            ) : (
+                <div className="space-y-4 mb-8">
+                    <div>
+                        <label htmlFor="followersText" className="block text-sm font-medium text-gray-700 mb-1">Followers List</label>
+                        <textarea
+                            id="followersText"
+                            rows="5"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Paste your list of followers here, one username per line."
+                            value={followersText}
+                            onChange={(e) => setFollowersText(e.target.value)}
+                        ></textarea>
+                    </div>
+                     <div>
+                        <label htmlFor="followingText" className="block text-sm font-medium text-gray-700 mb-1">Following List</label>
+                        <textarea
+                            id="followingText"
+                            rows="5"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                            placeholder="Paste your list of accounts you follow here, one username per line."
+                            value={followingText}
+                            onChange={(e) => setFollowingText(e.target.value)}
+                        ></textarea>
+                    </div>
+                </div>
+            )}
 
             <button
                 onClick={handleUpload}
-                disabled={isLoading || !files.followers || !files.following}
+                disabled={isLoading}
                 className="w-full bg-blue-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center text-lg"
             >
-                {isLoading ? (
-                    <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Analyzing...
-                    </>
-                ) : 'Upload & Analyze'}
+                {isLoading ? 'Analyzing...' : 'Analyze Data'}
             </button>
         </div>
     );
@@ -300,7 +321,7 @@ const Dashboard = ({ onSignOut }) => {
     const fetchData = useCallback(async (uid) => {
         setLoading(true);
         try {
-            const collections = ['followers', 'following', 'blocked', 'closeFriends', 'pendingRequests'];
+            const collections = ['followers', 'following'];
             const dataPromises = collections.map(async (colName) => {
                 const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${uid}/${colName}`));
                 return { [colName]: querySnapshot.docs.map(doc => doc.data()) };
@@ -337,9 +358,6 @@ const Dashboard = ({ onSignOut }) => {
     const tabs = [
         { id: 'notFollowingBack', label: "Don't Follow You Back", icon: UserX, list: data.notFollowingBack },
         { id: 'fans', label: "Fans", icon: UserCheck, list: data.fans },
-        { id: 'closeFriends', label: 'Close Friends', icon: Heart, list: data.closeFriends },
-        { id: 'blocked', label: 'Blocked', icon: Shield, list: data.blocked },
-        { id: 'pendingRequests', label: 'Pending', icon: Clock, list: data.pendingRequests },
     ];
 
     const renderContent = () => {
@@ -369,13 +387,13 @@ const Dashboard = ({ onSignOut }) => {
     
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-lg mx-auto">
-                <ul className="flex items-center justify-center space-x-2">
+            <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-sm mx-auto">
+                <ul className="flex items-center justify-center space-x-2 list-none p-0 m-0">
                     {tabs.map(tab => (
                         <li key={tab.id}>
                             <button
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex flex-col items-center justify-center px-4 py-2 rounded-full transition-all duration-300 ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-blue-100 hover:text-blue-600'}`}
+                                className={`flex flex-col items-center justify-center px-4 py-2 rounded-full transition-all duration-300 w-32 ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-blue-100 hover:text-blue-600'}`}
                             >
                                 <tab.icon className="h-5 w-5 mb-1" />
                                 <span className="text-xs font-semibold">{tab.label}</span>
@@ -459,7 +477,7 @@ export default function App() {
     };
 
     return (
-        <div className="App min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-100 flex flex-col p-4">
+        <div className="App min-h-screen bg-gray-50 flex flex-col p-4">
              {page !== 'home' && isAuthReady && (
                 <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8 pt-4">
                     <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setPage('home')}>
