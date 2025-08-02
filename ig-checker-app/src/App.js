@@ -1,4 +1,4 @@
-/* global __firebase_config, __initial_auth_token, __app_id */
+/* global __firebase_config, __initial_auth_token, __app_id, process */
 import React, { useState, useEffect, useCallback } from 'react';
 // import './App.css'; // This is commented out to ensure Tailwind styles apply correctly.
 import { initializeApp } from 'firebase/app';
@@ -104,9 +104,12 @@ export default function App() {
 
     // --- Firebase Initialization ---
     useEffect(() => {
-        try {
-            if (typeof __firebase_config !== 'undefined') {
-                const firebaseConfig = JSON.parse(__firebase_config);
+        // Use Vercel environment variable if available, otherwise use local one.
+        const firebaseConfigStr = process.env.REACT_APP_FIREBASE_CONFIG || (typeof __firebase_config !== 'undefined' ? __firebase_config : null);
+
+        if (firebaseConfigStr) {
+            try {
+                const firebaseConfig = JSON.parse(firebaseConfigStr);
                 const app = initializeApp(firebaseConfig);
                 const firestoreDb = getFirestore(app);
                 const auth = getAuth(app);
@@ -117,6 +120,8 @@ export default function App() {
                         setUserId(user.uid);
                     } else {
                         try {
+                            // On Vercel, this will sign the user in anonymously.
+                            // For local dev with token, use the token.
                             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                                 await signInWithCustomToken(auth, __initial_auth_token);
                             } else {
@@ -129,14 +134,14 @@ export default function App() {
                     }
                     setIsAuthReady(true);
                 });
-            } else {
-                 setError("Firebase configuration is missing.");
-                 setIsAuthReady(true);
+            } catch(e) {
+                console.error("Firebase config parsing error:", e);
+                setError("Firebase configuration is invalid.");
+                setIsAuthReady(true);
             }
-        } catch (e) {
-            console.error("Error initializing Firebase:", e);
-            setError("Application failed to start.");
-            setIsAuthReady(true);
+        } else {
+             setError("Firebase configuration is missing.");
+             setIsAuthReady(true);
         }
     }, []);
 
@@ -285,10 +290,10 @@ export default function App() {
                 </button>
                 <button 
                     onClick={processData} 
-                    disabled={isLoading || (!followersFile && !followersText) || (!followingFile && !followingText)} 
+                    disabled={!isAuthReady || isLoading || (!followersFile && !followersText) || (!followingFile && !followingText)} 
                     className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl"
                 >
-                    {isLoading ? 'Processing...' : 'Analyze My Data'}
+                    {!isAuthReady ? 'Connecting...' : isLoading ? 'Processing...' : 'Analyze My Data'}
                 </button>
             </div>
         </div>
@@ -321,11 +326,6 @@ export default function App() {
                 {view === 'main' && renderMain()}
                 {view === 'results' && renderResults()}
             </div>
-            { !isAuthReady && view !== 'intro' && (
-                 <div className="absolute inset-0 bg-gray-900/80 flex flex-col items-center justify-center z-50">
-                    <p className="text-white text-xl">Connecting securely...</p>
-                 </div>
-            )}
         </main>
     );
 }
