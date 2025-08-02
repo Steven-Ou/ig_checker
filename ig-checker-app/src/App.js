@@ -47,7 +47,6 @@ const extractUsernames = (data, key) => {
     const list = data[key] || (Array.isArray(data) ? data : []);
     if (!Array.isArray(list)) return [];
     
-    // Maps over the raw list and filters out any invalid usernames or malformed data
     return list
     .filter(item => item && item.string_list_data && item.string_list_data[0] && item.string_list_data[0].value)
     .map(item => ({
@@ -61,10 +60,10 @@ const extractUsernames = (data, key) => {
 // --- React Components ---
 
 const HomeScreen = ({ onGetStarted }) => (
-    <div className="w-full max-w-3xl mx-auto text-center animate-fade-in p-4 flex flex-col items-center justify-center">
+    <div className="w-full max-w-3xl mx-auto animate-fade-in p-4">
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30">
             <BarChart2 className="mx-auto h-16 w-16 text-blue-600" />
-            <h1 className="text-6xl md:text-7xl font-bold text-gray-900 mt-6 tracking-tight underline">
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mt-6 tracking-tight underline">
                 IG Checker
             </h1>
             <p className="mt-4 text-lg text-gray-700 max-w-xl mx-auto">
@@ -371,6 +370,7 @@ const Dashboard = ({ onSignOut }) => {
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
             <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-lg mx-auto">
+                <ul className="flex items-center justify-center space-x-2">
                     {tabs.map(tab => (
                         <li key={tab.id}>
                             <button
@@ -382,6 +382,7 @@ const Dashboard = ({ onSignOut }) => {
                             </button>
                         </li>
                     ))}
+                </ul>
             </nav>
             {renderContent()}
         </div>
@@ -458,22 +459,22 @@ export default function App() {
     };
 
     return (
-        <div className="App min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-100 flex flex-col items-center justify-center p-4">
+        <div className="App min-h-screen bg-gradient-to-br from-indigo-50 via-white to-cyan-100 flex flex-col p-4">
              {page !== 'home' && isAuthReady && (
                 <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8 pt-4">
                     <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setPage('home')}>
                         <BarChart2 className="h-10 w-10 text-blue-600"/>
-                        <h1 className="text-4xl font-bold text-gray-800 tracking-tight">IG Checker</h1>
+                        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">IG Checker</h1>
                     </div>
                     {userId && (
-                        <div className="text-center">
+                        <div className="text-right">
                             <p className="text-xs text-gray-400">SESSION ID</p>
                             <p className="text-sm font-mono text-gray-600">{userId}</p>
                         </div>
                     )}
                 </header>
              )}
-            <main className="w-full flex-grow">
+            <main className="w-full flex-grow flex items-center justify-center">
                 {renderPage()}
             </main>
         </div>
