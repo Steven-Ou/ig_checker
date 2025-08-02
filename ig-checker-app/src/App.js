@@ -104,11 +104,21 @@ export default function App() {
 
     // --- Firebase Initialization ---
     useEffect(() => {
-        const firebaseConfigStr = process.env.REACT_APP_FIREBASE_CONFIG || (typeof __firebase_config !== 'undefined' ? __firebase_config : null);
+        // --- CHANGE START ---
+        // Construct the config object from individual environment variables
+        // This is the recommended and most reliable way for Create React App.
+        const firebaseConfig = {
+            apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+            authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+            projectId: process.env.REACT_APP_PROJECT_ID,
+            storageBucket: process.env.REACT_APP_STORAGE_BUCKET,
+            messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
+            appId: process.env.REACT_APP_APP_ID,
+        };
 
-        if (firebaseConfigStr) {
+        // Check if the essential keys are present before trying to initialize
+        if (firebaseConfig.apiKey && firebaseConfig.projectId) {
             try {
-                const firebaseConfig = JSON.parse(firebaseConfigStr);
                 const app = initializeApp(firebaseConfig);
                 const firestoreDb = getFirestore(app);
                 const auth = getAuth(app);
@@ -131,12 +141,46 @@ export default function App() {
                     }
                 });
             } catch(e) {
-                console.error("Firebase config parsing error:", e);
-                setError("Firebase configuration is invalid.");
+                console.error("Firebase initialization error:", e);
+                setError("Firebase initialization failed.");
             }
         } else {
-             setError("Firebase configuration is missing.");
+             // Fallback for environments where __firebase_config might be injected directly
+             const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
+             if (firebaseConfigStr) {
+                try {
+                    const parsedConfig = JSON.parse(firebaseConfigStr);
+                    const app = initializeApp(parsedConfig);
+                    const firestoreDb = getFirestore(app);
+                    const auth = getAuth(app);
+                    setDb(firestoreDb);
+                    // Auth logic remains the same
+                     onAuthStateChanged(auth, async (user) => {
+                        if (user) {
+                            setUserId(user.uid);
+                        } else {
+                            try {
+                                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                                    await signInWithCustomToken(auth, __initial_auth_token);
+                                } else {
+                                    await signInAnonymously(auth);
+                                }
+                            } catch (authError) {
+                                console.error("Firebase Auth Error:", authError);
+                                setError("Authentication failed.");
+                            }
+                        }
+                    });
+                } catch (e) {
+                    console.error("Fallback Firebase config parsing error:", e);
+                    setError("Firebase configuration is invalid.");
+                }
+             } else {
+                console.error("Firebase configuration is missing from both .env and injected script.");
+                setError("Firebase configuration is missing.");
+             }
         }
+        // --- CHANGE END ---
     }, []);
 
     // --- Data Processing Logic ---
