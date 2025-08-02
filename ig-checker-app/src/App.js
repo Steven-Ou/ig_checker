@@ -1,4 +1,4 @@
-/* global __firebase_config, __initial_auth_token, __app_id, process */
+/* global __firebase_config, __initial_auth_token, __app_id */
 import React, { useState, useEffect, useCallback } from 'react';
 // import './App.css'; // This is commented out to ensure Tailwind styles apply correctly.
 import { initializeApp } from 'firebase/app';
