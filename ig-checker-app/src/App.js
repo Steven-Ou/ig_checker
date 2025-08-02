@@ -64,7 +64,7 @@ const HomeScreen = ({ onGetStarted }) => (
     <div className="w-full max-w-3xl mx-auto text-center animate-fade-in p-4 flex flex-col items-center justify-center">
         <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30">
             <BarChart2 className="mx-auto h-16 w-16 text-blue-600" />
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mt-6 tracking-tight">
+            <h1 className="text-5xl md:text-5xl font-bold text-gray-900 mt-6 tracking-tight underline">
                 IG Checker
             </h1>
             <p className="mt-4 text-lg text-gray-700 max-w-xl mx-auto">
