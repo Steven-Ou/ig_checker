@@ -371,7 +371,6 @@ const Dashboard = ({ onSignOut }) => {
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
             <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-lg mx-auto">
-                <ul className="flex items-center justify-center space-x-2">
                     {tabs.map(tab => (
                         <li key={tab.id}>
                             <button
@@ -383,7 +382,6 @@ const Dashboard = ({ onSignOut }) => {
                             </button>
                         </li>
                     ))}
-                </ul>
             </nav>
             {renderContent()}
         </div>
