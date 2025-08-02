@@ -1,5 +1,6 @@
 /* global __firebase_config, __initial_auth_token, __app_id */
 import React, { useState, useEffect, useCallback } from 'react';
+// import './App.css'; // REMOVED THIS LINE - It can interfere with Tailwind.
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
