@@ -265,16 +265,16 @@ const UploadScreen = ({ onUploadComplete }) => {
                         <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need files from the <code>followers_and_following</code> folder.</p>
                     </div>
                      <div className="flex flex-col lg:flex-row gap-6">
-                        <div className="flex-1 bg-gray-50 border rounded-lg p-4">
+                        <div className="flex-1 bg-gray-50 border rounded-lg p-6">
                             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Required Files</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'followers')} label="Followers File" requiredFileName="followers_1.json" />
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'following')} label="Following File" requiredFileName="following.json" />
                             </div>
                         </div>
-                        <div className="flex-1 bg-gray-50 border rounded-lg p-4">
+                        <div className="flex-1 bg-gray-50 border rounded-lg p-6">
                             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Optional Files</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'blocked')} label="Blocked" requiredFileName="blocked_accounts.json" />
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'closeFriends')} label="Close Friends" requiredFileName="close_friends.json" />
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'pendingRequests')} label="Pending" requiredFileName="pending_follow_requests.json" />
