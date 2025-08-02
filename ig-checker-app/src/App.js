@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 // import './App.css'; // This is commented out to ensure Tailwind styles apply correctly.
 import { initializeApp } from 'firebase/app';
+import { getAnalytics } from "firebase/analytics";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
