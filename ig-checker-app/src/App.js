@@ -1,523 +1,355 @@
-// --- React and Library Imports ---
 import React, { useState, useEffect, useCallback } from 'react';
-import './App.css';
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
-import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2, ArrowRight, ClipboardPaste } from 'lucide-react';
+import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from 'firebase/firestore';
 
-// --- Firebase Configuration ---
-const firebaseConfig = {
-  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
-  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.REACT_APP_FIREBASE_APP_ID
-};
+// --- Helper Components for a Cleaner UI ---
 
-// --- Firebase Initialization ---
-let app;
-if (firebaseConfig.apiKey && firebaseConfig.projectId) {
-    app = initializeApp(firebaseConfig);
-}
-const auth = getAuth(app);
-const db = getFirestore(app);
-const appId = firebaseConfig.appId || 'default-app-id';
+// Icon for buttons and titles
+const CheckIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+);
 
-// --- Helper Functions ---
-const parseJsonFile = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const json = JSON.parse(e.target.result);
-        resolve(json);
-      } catch (error) {
-        reject(new Error(`Error parsing ${file.name}: ${error.message}`));
-      }
-    };
-    reader.onerror = (e) => reject(new Error(`Error reading ${file.name}.`));
-    reader.readAsText(file);
-  });
-};
+// A styled container for each option
+const Card = ({ children, className = '' }) => (
+    <div className={`bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-6 border border-white/20 transition-all duration-300 hover:bg-white/20 hover:border-white/30 ${className}`}>
+        {children}
+    </div>
+);
 
-const parseTextList = (text) => {
-    if (!text) return [];
-    return text
-      .split('\n')
-      .map(username => username.trim())
-      .filter(username => username)
-      .map(username => ({
-        username,
-        url: `https://www.instagram.com/${username}/`,
-        timestamp: Math.floor(Date.now() / 1000),
-      }));
-};
+// A styled file input component
+const FileInput = ({ label, onFileSelect, id }) => (
+    <div className="w-full">
+        <label htmlFor={id} className="block text-lg font-semibold text-white mb-3 text-center">{label}</label>
+        <label htmlFor={id} className="w-full flex justify-center items-center px-4 py-3 bg-indigo-500 text-white rounded-lg shadow-md tracking-wide uppercase border border-indigo-600 cursor-pointer hover:bg-indigo-600 hover:text-white transition-all duration-300">
+            <svg className="w-8 h-8 mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M16.88 9.1A4 4 0 0 1 16 17H5a5 5 0 0 1-1-9.9V7a3 3 0 0 1 4.52-2.59A4.98 4.98 0 0 1 17 8c0 .38-.04.74-.12 1.1zM11 11h3l-4 4-4-4h3V3h2v8z" />
+            </svg>
+            <span className="text-base leading-normal">Choose a file</span>
+        </label>
+        <input type='file' className="hidden" id={id} onChange={e => onFileSelect(e.target.files[0])} accept=".json,.txt" />
+    </div>
+);
 
-const extractUsernames = (data, key) => {
-    if (!data) return [];
-    const list = data[key] || (Array.isArray(data) ? data : []);
-    if (!Array.isArray(list)) return [];
-    
-    return list
-    .filter(item => item && item.string_list_data && item.string_list_data[0] && item.string_list_data[0].value)
-    .map(item => ({
-        username: item.string_list_data[0].value,
-        url: item.string_list_data[0].href,
-        timestamp: item.string_list_data[0].timestamp,
-    }))
-    .filter(user => !(user.username.startsWith('__') && user.username.endsWith('__')));
-};
-
-// --- React Components ---
-
-const HomeScreen = ({ onGetStarted }) => (
-    <div className="w-full max-w-3xl mx-auto text-center animate-fade-in p-4">
-        <div className="bg-white/70 backdrop-blur-xl rounded-2xl shadow-xl p-8 md:p-12 border border-white/30">
-            <BarChart2 className="mx-auto h-16 w-16 text-blue-600" />
-            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mt-6 tracking-tight underline">
-                IG Checker
-            </h1>
-            <p className="mt-4 text-lg text-gray-700 max-w-xl mx-auto">
-                Gain insights into your Instagram audience. Find out who doesn't follow you back, discover your biggest fans, and more.
-            </p>
-            <p className="mt-2 text-sm text-gray-500 max-w-xl mx-auto">
-                All your data is processed on your device and securely stored for your session only.
-            </p>
-            <div className="mt-8">
-                <button
-                    onClick={onGetStarted}
-                    className="w-full max-w-xs mx-auto bg-blue-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-blue-700 transition-all duration-300 flex items-center justify-center text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1"
-                >
-                    Get Started
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                </button>
-            </div>
-        </div>
+// A styled text area component
+const PasteInput = ({ label, value, onChange }) => (
+    <div className="w-full">
+        <label className="block text-lg font-semibold text-white mb-3 text-center">{label}</label>
+        <textarea
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className="w-full h-40 p-4 bg-gray-800/50 text-white rounded-lg border-2 border-gray-600 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 transition-all duration-300"
+            placeholder="Paste your list here..."
+        />
     </div>
 );
 
 
-const Modal = ({ title, message, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 md:p-8 text-center">
-            <h3 className="text-2xl font-bold text-gray-800 mb-4">{title}</h3>
-            <p className="text-gray-600 mb-6">{message}</p>
-            <button 
-                onClick={onClose} 
-                className="w-full bg-blue-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300"
-            >
-                Close
-            </button>
-        </div>
-    </div>
-);
+// --- Main App Component ---
 
-const FileInput = ({ onFileSelect, label, requiredFileName }) => {
-    const [fileName, setFileName] = useState('');
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setFileName(file.name);
-            onFileSelect(file);
-        }
-    };
-
-    return (
-        <div className="w-full">
-            <label className="block text-sm font-bold text-gray-700 mb-2">{label}</label>
-            <label htmlFor={requiredFileName} className={`flex flex-col justify-center items-center w-full h-32 px-4 py-6 bg-gray-50 rounded-lg border-2 ${fileName ? 'border-green-400 bg-green-50' : 'border-dashed border-gray-300'} cursor-pointer hover:border-blue-500 transition-all`}>
-                <div className="text-center">
-                    <FileUp className={`mx-auto h-8 w-8 mb-2 ${fileName ? 'text-green-500' : 'text-gray-400'}`} />
-                    <p className={`mt-1 text-xs ${fileName ? 'text-green-600 font-semibold' : 'text-gray-500'}`}>
-                        {fileName || `Upload "${requiredFileName}"`}
-                    </p>
-                </div>
-            </label>
-            <input type="file" id={requiredFileName} className="hidden" accept=".json" onChange={handleFileChange} />
-        </div>
-    );
-};
-
-const UploadScreen = ({ onUploadComplete }) => {
-    const [inputMode, setInputMode] = useState('file'); // 'file' or 'paste'
-    const [files, setFiles] = useState({});
+export default function App() {
+    // --- State Management ---
+    const [view, setView] = useState('intro'); // 'intro', 'main', 'results'
+    const [followersFile, setFollowersFile] = useState(null);
+    const [followingFile, setFollowingFile] = useState(null);
     const [followersText, setFollowersText] = useState('');
     const [followingText, setFollowingText] = useState('');
+    const [dontFollowBack, setDontFollowBack] = useState([]);
+    const [mutuals, setMutuals] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
-    const [modal, setModal] = useState({ show: false, title: '', message: '' });
+    const [error, setError] = useState('');
+
+    // --- Firebase State ---
+    const [db, setDb] = useState(null);
+    const [auth, setAuth] = useState(null);
     const [userId, setUserId] = useState(null);
-    
+    const [isAuthReady, setIsAuthReady] = useState(false);
+
+    // --- Firebase Initialization ---
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) setUserId(user.uid);
-        });
-        return () => unsubscribe();
+        // This code runs only once to set up Firebase
+        try {
+            // Check if Firebase config is available
+            if (typeof __firebase_config !== 'undefined') {
+                const firebaseConfig = JSON.parse(__firebase_config);
+                const app = initializeApp(firebaseConfig);
+                const firestoreDb = getFirestore(app);
+                const firebaseAuth = getAuth(app);
+                
+                setDb(firestoreDb);
+                setAuth(firebaseAuth);
+
+                // Listen for authentication state changes
+                onAuthStateChanged(firebaseAuth, async (user) => {
+                    if (user) {
+                        // User is signed in.
+                        setUserId(user.uid);
+                    } else {
+                        // User is signed out. Try to sign in.
+                        try {
+                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                                await signInWithCustomToken(firebaseAuth, __initial_auth_token);
+                            } else {
+                                await signInAnonymously(firebaseAuth);
+                            }
+                        } catch (authError) {
+                            console.error("Firebase Auth Error:", authError);
+                            setError("Could not connect to the authentication service.");
+                        }
+                    }
+                    setIsAuthReady(true);
+                });
+            } else {
+                 setError("Firebase configuration is missing.");
+                 setIsAuthReady(true);
+            }
+        } catch (e) {
+            console.error("Error initializing Firebase:", e);
+            setError("There was a problem starting the application.");
+            setIsAuthReady(true);
+        }
     }, []);
 
-    const handleFileSelect = (file, type) => {
-        setFiles(prev => ({ ...prev, [type]: file }));
+
+    // --- Data Processing Logic ---
+    const parseList = (content) => {
+        try {
+            // Attempt to parse JSON first
+            const data = JSON.parse(content);
+            if (Array.isArray(data)) {
+                 // Simple array of strings
+                if (data.every(item => typeof item === 'string')) {
+                    return data;
+                }
+                // Array of objects with a 'value' property
+                if (data.every(item => item.string_list_data && item.string_list_data[0] && typeof item.string_list_data[0].value === 'string')) {
+                    return data.map(item => item.string_list_data[0].value);
+                }
+            }
+        } catch (e) {
+            // If JSON parsing fails, treat as a newline-separated string
+            return content.split('\n').map(s => s.trim()).filter(Boolean);
+        }
+        return []; // Return empty array if parsing fails
     };
 
-    const handleUpload = async () => {
-        if (!userId) {
-            setModal({ show: true, title: 'Authentication Error', message: 'Could not verify user. Please refresh and try again.' });
+    const handleFileRead = (file) => {
+        return new Promise((resolve, reject) => {
+            if (!file) {
+                resolve([]);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const content = e.target.result;
+                resolve(parseList(content));
+            };
+            reader.onerror = (err) => reject(err);
+            reader.readAsText(file);
+        });
+    };
+
+    const processData = useCallback(async () => {
+        if (!isAuthReady || !db) {
+            setError("Database is not ready. Please wait a moment and try again.");
             return;
         }
-
+        
         setIsLoading(true);
+        setError('');
+        setDontFollowBack([]);
+        setMutuals([]);
 
         try {
-            let followers, following;
+            let followers = followersText ? parseList(followersText) : await handleFileRead(followersFile);
+            let following = followingText ? parseList(followingText) : await handleFileRead(followingFile);
 
-            if (inputMode === 'file') {
-                if (!files.followers || !files.following) {
-                    setModal({ show: true, title: 'Missing Files', message: 'Please upload both your required followers and following files.' });
-                    setIsLoading(false);
-                    return;
-                }
-                const followersJson = await parseJsonFile(files.followers);
-                const followingJson = await parseJsonFile(files.following);
-                followers = extractUsernames(followersJson, 'relationships_followers');
-                following = extractUsernames(followingJson, 'relationships_following');
-            } else { // Paste mode
-                if (!followersText || !followingText) {
-                    setModal({ show: true, title: 'Missing Data', message: 'Please paste both your followers and following lists.' });
-                    setIsLoading(false);
-                    return;
-                }
-                followers = parseTextList(followersText);
-                following = parseTextList(followingText);
+            if (followers.length === 0 || following.length === 0) {
+                setError("Required data is missing or empty. Please provide both followers and following lists.");
+                setIsLoading(false);
+                return;
             }
 
-            const otherFiles = [
-                { key: 'blocked', file: files.blocked, jsonKey: 'relationships_blocked_users' },
-                { key: 'closeFriends', file: files.closeFriends, jsonKey: 'relationships_close_friends' },
-                { key: 'pendingRequests', file: files.pendingRequests, jsonKey: 'relationships_follow_requests_sent' },
-            ];
-            
-            const batch = writeBatch(db);
-            
-            const uploadList = async (list, collectionName) => {
-                if (!collectionName || !list || list.length === 0) return;
-                const collectionRef = collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`);
-                list.forEach(item => {
-                    if (item && item.username) {
-                        const docRef = doc(collectionRef, item.username);
-                        batch.set(docRef, item);
-                    }
-                });
-            };
+            const followersSet = new Set(followers);
+            const followingSet = new Set(following);
 
-            await uploadList(followers, 'followers');
-            await uploadList(following, 'following');
+            const notFollowingYouBack = following.filter(user => !followersSet.has(user));
+            const mutualFollowers = following.filter(user => followersSet.has(user));
 
-            for (const { key, file, jsonKey } of otherFiles) {
-                if (file && inputMode === 'file') {
-                    const json = await parseJsonFile(file);
-                    const data = extractUsernames(json, jsonKey);
-                    await uploadList(data, key);
-                }
-            }
+            setDontFollowBack(notFollowingYouBack);
+            setMutuals(mutualFollowers);
+
+            // --- Save results to Firestore ---
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
             
-            const snapshotRef = doc(db, `artifacts/${appId}/users/${userId}/snapshots/${new Date().toISOString()}`);
-            batch.set(snapshotRef, {
-                createdAt: new Date(),
-                followerCount: followers.length,
-                followers: followers.map(f => f.username)
+            await setDoc(userDocRef, {
+                dontFollowBack: notFollowingYouBack,
+                mutuals: mutualFollowers,
+                timestamp: new Date(),
             });
 
-            await batch.commit();
-
-            setModal({ show: true, title: 'Success!', message: 'Your Instagram data has been securely uploaded and analyzed.' });
-            setTimeout(onUploadComplete, 2000);
-
-        } catch (error) {
-            console.error("Upload Error:", error);
-            setModal({ show: true, title: 'Upload Failed', message: `An error occurred. Please check the console for details. Message: ${error.message}` });
+            setView('results');
+        } catch (e) {
+            console.error("Processing error:", e);
+            setError("An error occurred while processing your data. Please check the file format or text and try again.");
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [followersFile, followingFile, followersText, followingText, db, userId, isAuthReady]);
+    
+    // --- Load previous results from Firestore on startup ---
+    useEffect(() => {
+        const loadPreviousData = async () => {
+            if (isAuthReady && db && userId) {
+                const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
+                const docSnap = await getDoc(userDocRef);
 
-    return (
-        <div className="max-w-4xl w-full mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
-            {modal.show && <Modal title={modal.title} message={modal.message} onClose={() => setModal({ show: false, title: '', message: '' })} />}
-            <div className="text-center mb-6">
-                <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4">Provide Your Data</h1>
-                <p className="mt-2 text-gray-600">Choose your preferred method to get started.</p>
-            </div>
-            
-            <div className="flex justify-center mb-6 p-1 bg-gray-100 rounded-lg">
-                <button onClick={() => setInputMode('file')} className={`w-1/2 py-2 px-4 rounded-md font-semibold transition-colors flex items-center justify-center space-x-2 ${inputMode === 'file' ? 'bg-white text-blue-600 shadow' : 'bg-transparent text-gray-600'}`}>
-                    <FileUp className="h-5 w-5"/><span>File Upload</span>
-                </button>
-                <button onClick={() => setInputMode('paste')} className={`w-1/2 py-2 px-4 rounded-md font-semibold transition-colors flex items-center justify-center space-x-2 ${inputMode === 'paste' ? 'bg-white text-blue-600 shadow' : 'bg-transparent text-gray-600'}`}>
-                   <ClipboardPaste className="h-5 w-5"/><span>Paste Text</span>
-                </button>
-            </div>
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    setDontFollowBack(data.dontFollowBack || []);
+                    setMutuals(data.mutuals || []);
+                    if ((data.dontFollowBack || []).length > 0 || (data.mutuals || []).length > 0) {
+                       setView('results'); // Go to results if previous data exists
+                    }
+                }
+            }
+        };
+        loadPreviousData();
+    }, [isAuthReady, db, userId]);
 
-            {inputMode === 'file' ? (
-                <div className="space-y-6">
-                    <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md text-sm">
-                        <h2 className="font-semibold text-blue-800">How to get your data files:</h2>
-                        <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need files from the <code>followers_and_following</code> folder.</p>
-                    </div>
-                     <div className="flex flex-col lg:flex-row gap-6">
-                        <div className="flex-1 bg-gray-50 border rounded-lg p-6 shadow-sm">
-                            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Required Files</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                                <FileInput onFileSelect={(file) => handleFileSelect(file, 'followers')} label="Followers File" requiredFileName="followers_1.json" />
-                                <FileInput onFileSelect={(file) => handleFileSelect(file, 'following')} label="Following File" requiredFileName="following.json" />
-                            </div>
-                        </div>
-                        <div className="flex-1 bg-gray-50 border rounded-lg p-6 shadow-sm">
-                            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Optional Files</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
-                                <FileInput onFileSelect={(file) => handleFileSelect(file, 'blocked')} label="Blocked" requiredFileName="blocked_accounts.json" />
-                                <FileInput onFileSelect={(file) => handleFileSelect(file, 'closeFriends')} label="Close Friends" requiredFileName="close_friends.json" />
-                                <FileInput onFileSelect={(file) => handleFileSelect(file, 'pendingRequests')} label="Pending" requiredFileName="pending_follow_requests.json" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ) : (
-                <div className="space-y-6">
-                     <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md text-sm">
-                        <h2 className="font-semibold text-blue-800">How to get your data lists:</h2>
-                        <p className="text-blue-700">On the Instagram website, go to your Followers/Following list. Scroll to the bottom to load all users, then copy the entire list and paste it below.</p>
-                    </div>
-                    <div>
-                        <label htmlFor="followersText" className="block text-sm font-bold text-gray-700 mb-2">Followers List</label>
-                        <textarea
-                            id="followersText"
-                            rows="5"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Paste your list of followers here, one username per line."
-                            value={followersText}
-                            onChange={(e) => setFollowersText(e.target.value)}
-                        ></textarea>
-                    </div>
-                     <div>
-                        <label htmlFor="followingText" className="block text-sm font-bold text-gray-700 mb-2">Following List</label>
-                        <textarea
-                            id="followingText"
-                            rows="5"
-                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Paste your list of accounts you follow here, one username per line."
-                            value={followingText}
-                            onChange={(e) => setFollowingText(e.target.value)}
-                        ></textarea>
-                    </div>
-                </div>
-            )}
 
+    // --- Render Logic ---
+
+    const renderIntro = () => (
+        <div className="text-center animate-fade-in-up">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
+                Instagram Follower Check
+            </h1>
+            <p className="text-xl md:text-2xl text-indigo-200 mb-8 max-w-2xl mx-auto">
+                Find out who doesn't follow you back and see your mutuals. Secure, private, and easy to use.
+            </p>
             <button
-                onClick={handleUpload}
-                disabled={isLoading}
-                className="w-full mt-8 bg-blue-600 text-white font-bold py-4 px-8 rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center text-lg"
+                onClick={() => setView('main')}
+                className="bg-indigo-500 text-white font-bold rounded-full py-4 px-10 text-xl hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl"
             >
-                {isLoading ? 'Analyzing...' : 'Analyze Data'}
+                Get Started
             </button>
         </div>
     );
-};
 
-const UserListItem = ({ user }) => (
-    <li className="flex items-center justify-between bg-gray-50 p-3 rounded-lg hover:bg-gray-100 transition-colors">
-        <span className="font-medium text-gray-800">{user.username}</span>
-        <a href={user.url} target="_blank" rel="noopener noreferrer" className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full hover:bg-blue-200 transition-colors">
-            View Profile
-        </a>
-    </li>
-);
-
-const Dashboard = ({ onSignOut }) => {
-    const [activeTab, setActiveTab] = useState('notFollowingBack');
-    const [data, setData] = useState({});
-    const [loading, setLoading] = useState(true);
-    
-    const fetchData = useCallback(async (uid) => {
-        setLoading(true);
-        try {
-            const collections = ['followers', 'following', 'blocked', 'closeFriends', 'pendingRequests'];
-            const dataPromises = collections.map(async (colName) => {
-                const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${uid}/${colName}`));
-                return { [colName]: querySnapshot.docs.map(doc => doc.data()) };
-            });
-
-            const results = await Promise.all(dataPromises);
-            const combinedData = results.reduce((acc, current) => ({ ...acc, ...current }), {});
-
-            const followersSet = new Set((combinedData.followers || []).map(f => f.username));
-            combinedData.notFollowingBack = (combinedData.following || []).filter(f => !followersSet.has(f.username));
-
-            const followingSet = new Set((combinedData.following || []).map(f => f.username));
-            combinedData.fans = (combinedData.followers || []).filter(f => !followingSet.has(f.username));
-            
-            setData(combinedData);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
-            if (user) {
-                fetchData(user.uid);
-            } else {
-                onSignOut();
-            }
-        });
-        return () => unsubscribe();
-    }, [fetchData, onSignOut]);
-
-    const tabs = [
-        { id: 'notFollowingBack', label: "Don't Follow You Back", icon: UserX, list: data.notFollowingBack },
-        { id: 'fans', label: "Fans", icon: UserCheck, list: data.fans },
-        { id: 'closeFriends', label: 'Close Friends', icon: Heart, list: data.closeFriends },
-        { id: 'blocked', label: 'Blocked', icon: Shield, list: data.blocked },
-        { id: 'pendingRequests', label: 'Pending', icon: Clock, list: data.pendingRequests },
-    ];
-
-    const renderContent = () => {
-        if (loading) {
-            return <div className="text-center p-10"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div></div>;
-        }
-        const currentTab = tabs.find(t => t.id === activeTab);
-        if (!currentTab || !currentTab.list || currentTab.list.length === 0) {
-            return (
-                 <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-                    <h3 className="text-2xl font-bold mb-6 text-gray-800">{currentTab.label} (0)</h3>
-                    <div className="text-center py-12 px-6 bg-gray-50 rounded-lg">
-                        <p className="text-gray-600">No accounts found in this category.</p>
-                    </div>
-                </div>
-            )
-        }
-        return (
-             <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-                <h3 className="text-2xl font-bold mb-6 text-gray-800">{currentTab.label} ({currentTab.list.length})</h3>
-                <ul className="space-y-3">
-                    {currentTab.list.map(user => <UserListItem key={user.username} user={user} />)}
-                </ul>
+    const renderMain = () => (
+        <div className="w-full max-w-7xl mx-auto animate-fade-in">
+            <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Data</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                 <Card>
+                    <FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} />
+                 </Card>
+                 <Card>
+                    <FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} />
+                 </Card>
             </div>
-        );
-    };
-    
-    return (
-        <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-full sm:max-w-md md:max-w-lg mx-auto">
-                <ul className="flex items-center justify-center space-x-1 list-none p-0 m-0">
-                    {tabs.map(tab => (
-                        <li key={tab.id}>
-                            <button
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`flex flex-col items-center justify-center text-center px-3 py-2 rounded-full transition-all duration-300 w-24 ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-blue-100 hover:text-blue-600'}`}
-                            >
-                                <tab.icon className="h-5 w-5 mb-1" />
-                                <span className="text-xs font-semibold leading-tight">{tab.label}</span>
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </nav>
-            {renderContent()}
+             <div className="text-center text-white my-6 font-semibold text-lg">OR</div>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                 <Card>
+                    <PasteInput label="Paste Followers List" value={followersText} onChange={setFollowersText} />
+                 </Card>
+                 <Card>
+                    <PasteInput label="Paste Following List" value={followingText} onChange={setFollowingText} />
+                 </Card>
+            </div>
+            
+            {error && <p className="text-center text-red-400 text-lg my-4">{error}</p>}
+
+            <div className="text-center mt-8">
+                <button
+                    onClick={processData}
+                    disabled={isLoading || (!followersFile && !followingFile && !followersText && !followingText)}
+                    className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center justify-center mx-auto"
+                >
+                    {isLoading ? (
+                        <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Processing...
+                        </>
+                    ) : (
+                        <>
+                            <CheckIcon />
+                            Check Now
+                        </>
+                    )}
+                </button>
+            </div>
         </div>
     );
-};
+    
+    const renderResults = () => (
+        <div className="w-full max-w-5xl mx-auto animate-fade-in">
+             <h2 className="text-4xl font-bold text-white text-center mb-8">Your Results</h2>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <Card className="max-h-[60vh] overflow-y-auto">
+                     <h3 className="text-2xl font-bold text-white text-center mb-4">Doesn't Follow You Back ({dontFollowBack.length})</h3>
+                     <ul className="space-y-2">
+                         {dontFollowBack.map(user => (
+                             <li key={user} className="bg-gray-800/50 p-3 rounded-lg text-white/90 truncate">
+                                 <a href={`https://instagram.com/${user}`} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-300 transition-colors">{user}</a>
+                             </li>
+                         ))}
+                     </ul>
+                 </Card>
+                 <Card className="max-h-[60vh] overflow-y-auto">
+                     <h3 className="text-2xl font-bold text-white text-center mb-4">Mutuals ({mutuals.length})</h3>
+                     <ul className="space-y-2">
+                         {mutuals.map(user => (
+                             <li key={user} className="bg-gray-800/50 p-3 rounded-lg text-white/90 truncate">
+                                <a href={`https://instagram.com/${user}`} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-300 transition-colors">{user}</a>
+                             </li>
+                         ))}
+                     </ul>
+                 </Card>
+             </div>
+             <div className="text-center mt-10">
+                 <button
+                    onClick={() => {
+                        setView('main');
+                        setFollowersFile(null);
+                        setFollowingFile(null);
+                        setFollowersText('');
+                        setFollowingText('');
+                        setError('');
+                    }}
+                    className="bg-indigo-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                >
+                    Start Over
+                </button>
+             </div>
+        </div>
+    );
 
-export default function App() {
-    const [page, setPage] = useState('loading');
-    const [isAuthReady, setIsAuthReady] = useState(false);
-    const [userId, setUserId] = useState(null);
-
-    useEffect(() => {
-        const authHandler = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                setUserId(user.uid);
-                const userHasData = (await getDocs(collection(db, `artifacts/${appId}/users/${user.uid}/followers`))).size > 0;
-                setPage(userHasData ? 'dashboard' : 'home');
-            } else {
-                try {
-                    const userCredential = await signInAnonymously(auth);
-                    setUserId(userCredential.user.uid);
-                    setPage('home');
-                } catch (error) {
-                    console.error("Anonymous sign-in failed:", error);
-                    setPage('error');
-                }
-            }
-            setIsAuthReady(true);
-        });
-
-        if (!app) {
-            console.error("Firebase is not initialized. Check your environment variables.");
-            setPage('error');
-            setIsAuthReady(true);
-            return;
-        }
-
-        return () => authHandler();
-    }, []);
-
-    const renderPage = () => {
-        if (!isAuthReady || page === 'loading') {
-            return (
-                <div className="flex items-center justify-center h-full">
-                    <div className="text-center">
-                        <svg className="animate-spin mx-auto h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p className="mt-4 text-gray-600">Authenticating...</p>
-                    </div>
-                </div>
-            );
-        }
-        if (page === 'error' || !app) {
-            return (
-                 <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8 text-center">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">Configuration Error</h2>
-                    <p className="text-gray-700">Firebase configuration is missing. Please make sure your <code>.env.local</code> file is set up correctly.</p>
-                </div>
-            );
-        }
-        
-        switch (page) {
-            case 'home':
-                return <HomeScreen onGetStarted={() => setPage('upload')} />;
-            case 'upload':
-                return <UploadScreen onUploadComplete={() => setPage('dashboard')} />;
-            case 'dashboard':
-                return <Dashboard onSignOut={() => setPage('home')} />;
-            default:
-                return <HomeScreen onGetStarted={() => setPage('upload')} />;
-        }
-    };
 
     return (
-        <div className="App min-h-screen bg-gray-50 flex flex-col p-4">
-             {page !== 'home' && isAuthReady && (
-                <header className="w-full max-w-4xl mx-auto flex justify-between items-center mb-8 pt-4">
-                    <div className="flex items-center space-x-3 cursor-pointer" onClick={() => setPage('home')}>
-                        <BarChart2 className="h-10 w-10 text-blue-600"/>
-                        <h1 className="text-3xl font-bold text-gray-800 tracking-tight">IG Checker</h1>
-                    </div>
-                    {userId && (
-                        <div className="text-right">
-                            <p className="text-xs text-gray-400">SESSION ID</p>
-                            <p className="text-sm font-mono text-gray-600">{userId}</p>
-                        </div>
-                    )}
-                </header>
-             )}
-            <main className="w-full flex-grow flex items-center justify-center">
-                {renderPage()}
-            </main>
-        </div>
+        <main className="min-h-screen w-full bg-gray-900 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 font-sans">
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+            <div className="relative z-10 w-full flex items-center justify-center">
+                {view === 'intro' && renderIntro()}
+                {view === 'main' && renderMain()}
+                {view === 'results' && renderResults()}
+            </div>
+            { !isAuthReady && view !== 'intro' && (
+                 <div className="absolute inset-0 bg-gray-900/80 flex flex-col items-center justify-center z-50">
+                    <svg className="animate-spin h-10 w-10 text-white mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p className="text-white text-xl">Connecting securely...</p>
+                 </div>
+            )}
+        </main>
     );
 }
