@@ -1,7 +1,8 @@
+/* global __firebase_config, __initial_auth_token, __app_id */
 import React, { useState, useEffect, useCallback } from 'react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc, collection, addDoc } from 'firebase/firestore';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 // --- Helper Components for a Cleaner UI ---
 
@@ -54,10 +55,16 @@ export default function App() {
     const [view, setView] = useState('intro'); // 'intro', 'main', 'results'
     const [followersFile, setFollowersFile] = useState(null);
     const [followingFile, setFollowingFile] = useState(null);
+    const [pendingFile, setPendingFile] = useState(null); // New state for optional file
     const [followersText, setFollowersText] = useState('');
     const [followingText, setFollowingText] = useState('');
+    
+    // Results state
     const [dontFollowBack, setDontFollowBack] = useState([]);
+    const [iDontFollowBack, setIDontFollowBack] = useState([]); // New state for new feature
     const [mutuals, setMutuals] = useState([]);
+    const [unverifiedFollowings, setUnverifiedFollowings] = useState([]); // New state for new feature
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -69,9 +76,7 @@ export default function App() {
 
     // --- Firebase Initialization ---
     useEffect(() => {
-        // This code runs only once to set up Firebase
         try {
-            // Check if Firebase config is available
             if (typeof __firebase_config !== 'undefined') {
                 const firebaseConfig = JSON.parse(__firebase_config);
                 const app = initializeApp(firebaseConfig);
@@ -81,13 +86,10 @@ export default function App() {
                 setDb(firestoreDb);
                 setAuth(firebaseAuth);
 
-                // Listen for authentication state changes
                 onAuthStateChanged(firebaseAuth, async (user) => {
                     if (user) {
-                        // User is signed in.
                         setUserId(user.uid);
                     } else {
-                        // User is signed out. Try to sign in.
                         try {
                             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                                 await signInWithCustomToken(firebaseAuth, __initial_auth_token);
@@ -115,24 +117,21 @@ export default function App() {
 
     // --- Data Processing Logic ---
     const parseList = (content) => {
+        if (!content) return [];
         try {
-            // Attempt to parse JSON first
             const data = JSON.parse(content);
             if (Array.isArray(data)) {
-                 // Simple array of strings
                 if (data.every(item => typeof item === 'string')) {
                     return data;
                 }
-                // Array of objects with a 'value' property
                 if (data.every(item => item.string_list_data && item.string_list_data[0] && typeof item.string_list_data[0].value === 'string')) {
                     return data.map(item => item.string_list_data[0].value);
                 }
             }
         } catch (e) {
-            // If JSON parsing fails, treat as a newline-separated string
             return content.split('\n').map(s => s.trim()).filter(Boolean);
         }
-        return []; // Return empty array if parsing fails
+        return [];
     };
 
     const handleFileRead = (file) => {
@@ -142,10 +141,7 @@ export default function App() {
                 return;
             }
             const reader = new FileReader();
-            reader.onload = (e) => {
-                const content = e.target.result;
-                resolve(parseList(content));
-            };
+            reader.onload = (e) => resolve(parseList(e.target.result));
             reader.onerror = (err) => reject(err);
             reader.readAsText(file);
         });
@@ -153,21 +149,20 @@ export default function App() {
 
     const processData = useCallback(async () => {
         if (!isAuthReady || !db) {
-            setError("Database is not ready. Please wait a moment and try again.");
+            setError("Database is not ready. Please wait and try again.");
             return;
         }
         
         setIsLoading(true);
         setError('');
-        setDontFollowBack([]);
-        setMutuals([]);
 
         try {
             let followers = followersText ? parseList(followersText) : await handleFileRead(followersFile);
             let following = followingText ? parseList(followingText) : await handleFileRead(followingFile);
+            let pending = await handleFileRead(pendingFile);
 
             if (followers.length === 0 || following.length === 0) {
-                setError("Required data is missing or empty. Please provide both followers and following lists.");
+                setError("Required data is missing. Please provide both followers and following lists.");
                 setIsLoading(false);
                 return;
             }
@@ -175,11 +170,16 @@ export default function App() {
             const followersSet = new Set(followers);
             const followingSet = new Set(following);
 
+            // --- Calculations for all features ---
             const notFollowingYouBack = following.filter(user => !followersSet.has(user));
+            const youDontFollowBack = followers.filter(user => !followingSet.has(user));
             const mutualFollowers = following.filter(user => followersSet.has(user));
+            const unverified = pending.length > 0 ? pending.filter(user => followingSet.has(user)) : [];
 
             setDontFollowBack(notFollowingYouBack);
+            setIDontFollowBack(youDontFollowBack);
             setMutuals(mutualFollowers);
+            setUnverifiedFollowings(unverified);
 
             // --- Save results to Firestore ---
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
@@ -187,18 +187,20 @@ export default function App() {
             
             await setDoc(userDocRef, {
                 dontFollowBack: notFollowingYouBack,
+                iDontFollowBack: youDontFollowBack,
                 mutuals: mutualFollowers,
+                unverifiedFollowings: unverified,
                 timestamp: new Date(),
             });
 
             setView('results');
         } catch (e) {
             console.error("Processing error:", e);
-            setError("An error occurred while processing your data. Please check the file format or text and try again.");
+            setError("An error occurred while processing your data. Check the file formats and try again.");
         } finally {
             setIsLoading(false);
         }
-    }, [followersFile, followingFile, followersText, followingText, db, userId, isAuthReady]);
+    }, [followersFile, followingFile, pendingFile, followersText, followingText, db, userId, isAuthReady]);
     
     // --- Load previous results from Firestore on startup ---
     useEffect(() => {
@@ -211,9 +213,12 @@ export default function App() {
                 if (docSnap.exists()) {
                     const data = docSnap.data();
                     setDontFollowBack(data.dontFollowBack || []);
+                    setIDontFollowBack(data.iDontFollowBack || []);
                     setMutuals(data.mutuals || []);
-                    if ((data.dontFollowBack || []).length > 0 || (data.mutuals || []).length > 0) {
-                       setView('results'); // Go to results if previous data exists
+                    setUnverifiedFollowings(data.unverifiedFollowings || []);
+                    
+                    if ([...data.dontFollowBack, ...data.iDontFollowBack, ...data.mutuals].length > 0) {
+                       setView('results');
                     }
                 }
             }
@@ -221,21 +226,23 @@ export default function App() {
         loadPreviousData();
     }, [isAuthReady, db, userId]);
 
+    const resetState = () => {
+        setView('main');
+        setFollowersFile(null);
+        setFollowingFile(null);
+        setPendingFile(null);
+        setFollowersText('');
+        setFollowingText('');
+        setError('');
+    };
 
     // --- Render Logic ---
 
     const renderIntro = () => (
         <div className="text-center animate-fade-in-up">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">
-                Instagram Follower Check
-            </h1>
-            <p className="text-xl md:text-2xl text-indigo-200 mb-8 max-w-2xl mx-auto">
-                Find out who doesn't follow you back and see your mutuals. Secure, private, and easy to use.
-            </p>
-            <button
-                onClick={() => setView('main')}
-                className="bg-indigo-500 text-white font-bold rounded-full py-4 px-10 text-xl hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl"
-            >
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">Instagram Follower Check</h1>
+            <p className="text-xl md:text-2xl text-indigo-200 mb-8 max-w-2xl mx-auto">Find out who doesn't follow you back, who you don't follow back, and more. Securely and privately.</p>
+            <button onClick={() => setView('main')} className="bg-indigo-500 text-white font-bold rounded-full py-4 px-10 text-xl hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl">
                 Get Started
             </button>
         </div>
@@ -243,95 +250,68 @@ export default function App() {
 
     const renderMain = () => (
         <div className="w-full max-w-7xl mx-auto animate-fade-in">
-            <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Data</h2>
+            <h2 className="text-4xl font-bold text-white text-center mb-2">Provide Your Data</h2>
+            <p className="text-center text-indigo-200 mb-8">You can upload files or paste text directly.</p>
+            
+            <h3 className="text-2xl font-semibold text-white text-center mb-4">Required Files</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                 <Card>
-                    <FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} />
-                 </Card>
-                 <Card>
-                    <FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} />
-                 </Card>
+                 <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
+                 <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
             </div>
-             <div className="text-center text-white my-6 font-semibold text-lg">OR</div>
+            
+            <h3 className="text-2xl font-semibold text-white text-center mb-4">Optional File</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div className="md:col-start-2">
+                    <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
+                </div>
+            </div>
+
+             <div className="text-center text-white my-6 font-semibold text-lg">OR PASTE TEXT</div>
+             
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                 <Card>
-                    <PasteInput label="Paste Followers List" value={followersText} onChange={setFollowersText} />
-                 </Card>
-                 <Card>
-                    <PasteInput label="Paste Following List" value={followingText} onChange={setFollowingText} />
-                 </Card>
-            </div>
+                 <Card><PasteInput label="Paste Followers List" value={followersText} onChange={setFollowersText} /></Card>
+                 <Card><PasteInput label="Paste Following List" value={followingText} onChange={setFollowingText} /></Card>
+             </div>
             
             {error && <p className="text-center text-red-400 text-lg my-4">{error}</p>}
 
             <div className="text-center mt-8">
-                <button
-                    onClick={processData}
-                    disabled={isLoading || (!followersFile && !followingFile && !followersText && !followingText)}
-                    className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center justify-center mx-auto"
-                >
-                    {isLoading ? (
-                        <>
-                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Processing...
-                        </>
-                    ) : (
-                        <>
-                            <CheckIcon />
-                            Check Now
-                        </>
-                    )}
+                <button onClick={processData} disabled={isLoading || (!followersFile && !followingFile && !followersText && !followingText)} className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center justify-center mx-auto">
+                    {isLoading ? 'Processing...' : <><CheckIcon />Check Now</>}
                 </button>
             </div>
         </div>
     );
     
+    const ResultList = ({ title, count, users }) => (
+        <Card className="max-h-[50vh] flex flex-col">
+            <h3 className="text-2xl font-bold text-white text-center mb-4 sticky top-0">{title} ({count})</h3>
+            <ul className="space-y-2 overflow-y-auto flex-grow">
+                {users.map(user => (
+                    <li key={user} className="bg-gray-800/50 p-3 rounded-lg text-white/90 truncate">
+                        <a href={`https://instagram.com/${user}`} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-300 transition-colors">{user}</a>
+                    </li>
+                ))}
+            </ul>
+        </Card>
+    );
+
     const renderResults = () => (
-        <div className="w-full max-w-5xl mx-auto animate-fade-in">
+        <div className="w-full max-w-7xl mx-auto animate-fade-in">
              <h2 className="text-4xl font-bold text-white text-center mb-8">Your Results</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <Card className="max-h-[60vh] overflow-y-auto">
-                     <h3 className="text-2xl font-bold text-white text-center mb-4">Doesn't Follow You Back ({dontFollowBack.length})</h3>
-                     <ul className="space-y-2">
-                         {dontFollowBack.map(user => (
-                             <li key={user} className="bg-gray-800/50 p-3 rounded-lg text-white/90 truncate">
-                                 <a href={`https://instagram.com/${user}`} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-300 transition-colors">{user}</a>
-                             </li>
-                         ))}
-                     </ul>
-                 </Card>
-                 <Card className="max-h-[60vh] overflow-y-auto">
-                     <h3 className="text-2xl font-bold text-white text-center mb-4">Mutuals ({mutuals.length})</h3>
-                     <ul className="space-y-2">
-                         {mutuals.map(user => (
-                             <li key={user} className="bg-gray-800/50 p-3 rounded-lg text-white/90 truncate">
-                                <a href={`https://instagram.com/${user}`} target="_blank" rel="noopener noreferrer" className="hover:text-indigo-300 transition-colors">{user}</a>
-                             </li>
-                         ))}
-                     </ul>
-                 </Card>
+                <ResultList title="Don't Follow You Back" count={dontFollowBack.length} users={dontFollowBack} />
+                <ResultList title="You Don't Follow Back" count={iDontFollowBack.length} users={iDontFollowBack} />
+                <ResultList title="Mutuals" count={mutuals.length} users={mutuals} />
+                { unverifiedFollowings.length > 0 && <ResultList title="Unverified Followings" count={unverifiedFollowings.length} users={unverifiedFollowings} /> }
              </div>
              <div className="text-center mt-10">
-                 <button
-                    onClick={() => {
-                        setView('main');
-                        setFollowersFile(null);
-                        setFollowingFile(null);
-                        setFollowersText('');
-                        setFollowingText('');
-                        setError('');
-                    }}
-                    className="bg-indigo-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl"
-                >
+                 <button onClick={resetState} className="bg-indigo-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl">
                     Start Over
                 </button>
              </div>
         </div>
     );
-
 
     return (
         <main className="min-h-screen w-full bg-gray-900 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 font-sans">
