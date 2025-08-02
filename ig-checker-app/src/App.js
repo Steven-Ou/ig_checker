@@ -50,6 +50,24 @@ const ResultList = ({ title, count, users }) => (
     </Card>
 );
 
+// --- Data Parsing Logic (Pure Function) ---
+const parseList = (content) => {
+    if (!content) return [];
+    try {
+        const data = JSON.parse(content);
+        if (Array.isArray(data)) {
+            if (data.every(item => typeof item === 'string')) return data;
+            if (data.every(item => item.string_list_data?.[0]?.value)) {
+                return data.map(item => item.string_list_data[0].value);
+            }
+        }
+    } catch (e) {
+        return content.split('\n').map(s => s.trim()).filter(Boolean);
+    }
+    return [];
+};
+
+
 // --- Main App Component ---
 
 export default function App() {
@@ -122,29 +140,13 @@ export default function App() {
     }, []);
 
     // --- Data Processing Logic ---
-    const parseList = (content) => {
-        if (!content) return [];
-        try {
-            const data = JSON.parse(content);
-            if (Array.isArray(data)) {
-                if (data.every(item => typeof item === 'string')) return data;
-                if (data.every(item => item.string_list_data?.[0]?.value)) {
-                    return data.map(item => item.string_list_data[0].value);
-                }
-            }
-        } catch (e) {
-            return content.split('\n').map(s => s.trim()).filter(Boolean);
-        }
-        return [];
-    };
-
-    const handleFileRead = (file) => new Promise((resolve, reject) => {
+    const handleFileRead = useCallback((file) => new Promise((resolve, reject) => {
         if (!file) return resolve([]);
         const reader = new FileReader();
         reader.onload = (e) => resolve(parseList(e.target.result));
         reader.onerror = (err) => reject(err);
         reader.readAsText(file);
-    });
+    }), []);
 
     const processData = useCallback(async () => {
         if (!isAuthReady || !db) {
@@ -200,7 +202,7 @@ export default function App() {
         } finally {
             setIsLoading(false);
         }
-    }, [followersFile, followingFile, pendingFile, blockedFile, unfollowedFile, followersText, followingText, blockedText, db, userId, isAuthReady]);
+    }, [followersFile, followingFile, pendingFile, blockedFile, unfollowedFile, followersText, followingText, blockedText, db, userId, isAuthReady, handleFileRead]);
     
     useEffect(() => {
         const loadPreviousData = async () => {
