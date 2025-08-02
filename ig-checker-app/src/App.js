@@ -4,7 +4,7 @@ import './App.css';
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, doc, collection, getDocs, writeBatch } from 'firebase/firestore';
-import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2, ChevronDown, ArrowRight, FileText, ClipboardPaste } from 'lucide-react';
+import { UserCheck, UserX, Heart, Shield, Clock, FileUp, BarChart2, ArrowRight, ClipboardPaste } from 'lucide-react';
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
@@ -47,7 +47,7 @@ const parseTextList = (text) => {
     return text
       .split('\n')
       .map(username => username.trim())
-      .filter(username => username) // Remove empty lines
+      .filter(username => username)
       .map(username => ({
         username,
         url: `https://www.instagram.com/${username}/`,
@@ -127,7 +127,7 @@ const FileInput = ({ onFileSelect, label, requiredFileName }) => {
     return (
         <div className="w-full">
             <label className="block text-sm font-bold text-gray-700 mb-2">{label}</label>
-            <label htmlFor={requiredFileName} className={`flex flex-col justify-center items-center w-full h-32 px-4 py-6 bg-gray-50 rounded-lg border-2 ${fileName ? 'border-green-400' : 'border-dashed border-gray-300'} cursor-pointer hover:border-blue-500 transition-all`}>
+            <label htmlFor={requiredFileName} className={`flex flex-col justify-center items-center w-full h-32 px-4 py-6 bg-gray-50 rounded-lg border-2 ${fileName ? 'border-green-400 bg-green-50' : 'border-dashed border-gray-300'} cursor-pointer hover:border-blue-500 transition-all`}>
                 <div className="text-center">
                     <FileUp className={`mx-auto h-8 w-8 mb-2 ${fileName ? 'text-green-500' : 'text-gray-400'}`} />
                     <p className={`mt-1 text-xs ${fileName ? 'text-green-600 font-semibold' : 'text-gray-500'}`}>
@@ -214,7 +214,7 @@ const UploadScreen = ({ onUploadComplete }) => {
             await uploadList(following, 'following');
 
             for (const { key, file, jsonKey } of otherFiles) {
-                if (file) {
+                if (file && inputMode === 'file') {
                     const json = await parseJsonFile(file);
                     const data = extractUsernames(json, jsonKey);
                     await uploadList(data, key);
@@ -242,7 +242,7 @@ const UploadScreen = ({ onUploadComplete }) => {
     };
 
     return (
-        <div className="max-w-3xl w-full mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
+        <div className="max-w-4xl w-full mx-auto bg-white rounded-2xl shadow-xl p-6 md:p-10">
             {modal.show && <Modal title={modal.title} message={modal.message} onClose={() => setModal({ show: false, title: '', message: '' })} />}
             <div className="text-center mb-6">
                 <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mt-4">Provide Your Data</h1>
@@ -264,32 +264,32 @@ const UploadScreen = ({ onUploadComplete }) => {
                         <h2 className="font-semibold text-blue-800">How to get your data files:</h2>
                         <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need files from the <code>followers_and_following</code> folder.</p>
                     </div>
-                     <div className="p-4 border border-gray-200 rounded-lg space-y-6">
-                        <div>
+                     <div className="flex flex-col lg:flex-row gap-6">
+                        <div className="flex-1 bg-gray-50 border rounded-lg p-4">
                             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Required Files</h3>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'followers')} label="Followers File" requiredFileName="followers_1.json" />
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'following')} label="Following File" requiredFileName="following.json" />
                             </div>
                         </div>
-                        <div>
-                           <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Optional Files</h3>
-                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="flex-1 bg-gray-50 border rounded-lg p-4">
+                            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Optional Files</h3>
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'blocked')} label="Blocked" requiredFileName="blocked_accounts.json" />
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'closeFriends')} label="Close Friends" requiredFileName="close_friends.json" />
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'pendingRequests')} label="Pending" requiredFileName="pending_follow_requests.json" />
-                           </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             ) : (
-                <div className="space-y-4">
+                <div className="space-y-6">
                      <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-md text-sm">
                         <h2 className="font-semibold text-blue-800">How to get your data lists:</h2>
                         <p className="text-blue-700">On the Instagram website, go to your Followers/Following list. Scroll to the bottom to load all users, then copy the entire list and paste it below.</p>
                     </div>
                     <div>
-                        <label htmlFor="followersText" className="block text-sm font-bold text-gray-700 mb-1">Followers List</label>
+                        <label htmlFor="followersText" className="block text-sm font-bold text-gray-700 mb-2">Followers List</label>
                         <textarea
                             id="followersText"
                             rows="5"
@@ -300,7 +300,7 @@ const UploadScreen = ({ onUploadComplete }) => {
                         ></textarea>
                     </div>
                      <div>
-                        <label htmlFor="followingText" className="block text-sm font-bold text-gray-700 mb-1">Following List</label>
+                        <label htmlFor="followingText" className="block text-sm font-bold text-gray-700 mb-2">Following List</label>
                         <textarea
                             id="followingText"
                             rows="5"
@@ -341,7 +341,7 @@ const Dashboard = ({ onSignOut }) => {
     const fetchData = useCallback(async (uid) => {
         setLoading(true);
         try {
-            const collections = ['followers', 'following'];
+            const collections = ['followers', 'following', 'blocked', 'closeFriends', 'pendingRequests'];
             const dataPromises = collections.map(async (colName) => {
                 const querySnapshot = await getDocs(collection(db, `artifacts/${appId}/users/${uid}/${colName}`));
                 return { [colName]: querySnapshot.docs.map(doc => doc.data()) };
@@ -378,6 +378,9 @@ const Dashboard = ({ onSignOut }) => {
     const tabs = [
         { id: 'notFollowingBack', label: "Don't Follow You Back", icon: UserX, list: data.notFollowingBack },
         { id: 'fans', label: "Fans", icon: UserCheck, list: data.fans },
+        { id: 'closeFriends', label: 'Close Friends', icon: Heart, list: data.closeFriends },
+        { id: 'blocked', label: 'Blocked', icon: Shield, list: data.blocked },
+        { id: 'pendingRequests', label: 'Pending', icon: Clock, list: data.pendingRequests },
     ];
 
     const renderContent = () => {
@@ -407,13 +410,13 @@ const Dashboard = ({ onSignOut }) => {
     
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-sm mx-auto">
+            <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-lg mx-auto">
                 <ul className="flex items-center justify-center space-x-2 list-none p-0 m-0">
                     {tabs.map(tab => (
                         <li key={tab.id}>
                             <button
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex flex-col items-center justify-center px-4 py-2 rounded-full transition-all duration-300 w-32 ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-blue-100 hover:text-blue-600'}`}
+                                className={`flex flex-col items-center justify-center px-4 py-2 rounded-full transition-all duration-300 ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-blue-100 hover:text-blue-600'}`}
                             >
                                 <tab.icon className="h-5 w-5 mb-1" />
                                 <span className="text-xs font-semibold">{tab.label}</span>
