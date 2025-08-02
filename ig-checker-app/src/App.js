@@ -1,6 +1,6 @@
 /* global __firebase_config, __initial_auth_token, __app_id */
 import React, { useState, useEffect, useCallback } from 'react';
-// import './App.css'; // REMOVED THIS LINE - It can interfere with Tailwind.
+// import './App.css'; // This is commented out to ensure Tailwind styles apply correctly.
 import { initializeApp } from 'firebase/app';
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
@@ -276,8 +276,18 @@ export default function App() {
             
             {error && <p className="text-center text-red-400 text-lg my-6">{error}</p>}
 
-            <div className="text-center mt-12">
-                <button onClick={processData} disabled={isLoading || (!followersFile && !followersText) || (!followingFile && !followingText)} className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl">
+            <div className="text-center mt-12 flex justify-center items-center gap-4">
+                <button
+                    onClick={() => setView('intro')}
+                    className="bg-gray-600 text-white font-bold rounded-full py-4 px-10 text-xl hover:bg-gray-500 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                >
+                    Back
+                </button>
+                <button 
+                    onClick={processData} 
+                    disabled={isLoading || (!followersFile && !followersText) || (!followingFile && !followingText)} 
+                    className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                >
                     {isLoading ? 'Processing...' : 'Analyze My Data'}
                 </button>
             </div>
