@@ -265,14 +265,14 @@ const UploadScreen = ({ onUploadComplete }) => {
                         <p className="text-blue-700">Go to Instagram {'>'} Settings {'>'} Your Activity {'>'} Download your information. Request the <strong>JSON</strong> format. You'll need files from the <code>followers_and_following</code> folder.</p>
                     </div>
                      <div className="flex flex-col lg:flex-row gap-6">
-                        <div className="flex-1 bg-gray-50 border rounded-lg p-6">
+                        <div className="flex-1 bg-gray-50 border rounded-lg p-6 shadow-sm">
                             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Required Files</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'followers')} label="Followers File" requiredFileName="followers_1.json" />
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'following')} label="Following File" requiredFileName="following.json" />
                             </div>
                         </div>
-                        <div className="flex-1 bg-gray-50 border rounded-lg p-6">
+                        <div className="flex-1 bg-gray-50 border rounded-lg p-6 shadow-sm">
                             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2 mb-4">Optional Files</h3>
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-4">
                                 <FileInput onFileSelect={(file) => handleFileSelect(file, 'blocked')} label="Blocked" requiredFileName="blocked_accounts.json" />
@@ -410,16 +410,16 @@ const Dashboard = ({ onSignOut }) => {
     
     return (
         <div className="container mx-auto p-4 sm:p-6 lg:p-8">
-            <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-lg mx-auto">
-                <ul className="flex items-center justify-center space-x-2 list-none p-0 m-0">
+            <nav className="mb-8 bg-white/70 backdrop-blur-lg rounded-full shadow-lg p-2 max-w-full sm:max-w-md md:max-w-lg mx-auto">
+                <ul className="flex items-center justify-center space-x-1 list-none p-0 m-0">
                     {tabs.map(tab => (
                         <li key={tab.id}>
                             <button
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`flex flex-col items-center justify-center px-4 py-2 rounded-full transition-all duration-300 ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-blue-100 hover:text-blue-600'}`}
+                                className={`flex flex-col items-center justify-center text-center px-3 py-2 rounded-full transition-all duration-300 w-24 ${activeTab === tab.id ? 'bg-blue-600 text-white shadow-md' : 'text-gray-500 hover:bg-blue-100 hover:text-blue-600'}`}
                             >
                                 <tab.icon className="h-5 w-5 mb-1" />
-                                <span className="text-xs font-semibold">{tab.label}</span>
+                                <span className="text-xs font-semibold leading-tight">{tab.label}</span>
                             </button>
                         </li>
                     ))}
