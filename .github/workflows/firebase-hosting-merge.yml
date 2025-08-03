@@ -18,5 +18,5 @@ jobs:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_DATABASE_84B6F }}
           channelId: live
-          projectId: database-84b6f
+          projectId: ig-checker-app
           entryPoint: ./ig-checker-app
