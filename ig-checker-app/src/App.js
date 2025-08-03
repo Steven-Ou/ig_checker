@@ -51,6 +51,66 @@ const ResultList = ({ title, count, users }) => (
     </Card>
 );
 
+// --- NEW: Help Modal Component ---
+const HelpModal = ({ isOpen, onClose, children }) => {
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in-fast" onClick={onClose}>
+            <div className="bg-gray-800 border border-white/20 rounded-2xl shadow-2xl p-8 max-w-2xl w-11/12 text-white relative animate-fade-in-up-fast" onClick={e => e.stopPropagation()}>
+                <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors">
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+                {children}
+            </div>
+        </div>
+    );
+};
+
+// --- NEW: Help Icon Component ---
+const HelpIcon = ({ onClick }) => (
+    <button onClick={onClick} className="ml-2 text-indigo-300 hover:text-indigo-100 transition-colors focus:outline-none">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    </button>
+);
+
+// --- NEW: Help Content Definitions ---
+const HELP_CONTENT = {
+    PRIMARY: (
+        <>
+            <h2 className="text-2xl font-bold mb-4 text-indigo-300">How to Find Your Followers & Following Files</h2>
+            <div className="space-y-4 text-white/90">
+                <p>To get your data, you need to request a download from Instagram:</p>
+                <ol className="list-decimal list-inside space-y-2 pl-4">
+                    <li>Go to your Instagram Profile &gt; <strong>Settings and privacy</strong> &gt; <strong>Accounts Center</strong>.</li>
+                    <li>Select <strong>Your information and permissions</strong> &gt; <strong>Download your information</strong>.</li>
+                    <li>Click <strong>Request a download</strong>, select your profile, and click <strong>Next</strong>.</li>
+                    <li>Choose <strong>Select types of information</strong>.</li>
+                    <li>Scroll down and select <strong>Followers and following</strong>. Click <strong>Next</strong>.</li>
+                    <li>Set the format to <strong>JSON</strong> and media quality to low. Click <strong>Submit request</strong>.</li>
+                </ol>
+                <p>Instagram will email you a link to download a ZIP file. Once you unzip it, look inside the <strong>followers_and_following</strong> folder for:</p>
+                <ul className="list-disc list-inside space-y-1 pl-4 font-mono">
+                    <li>followers_1.json</li>
+                    <li>following.json</li>
+                </ul>
+                <p>Upload those two files here.</p>
+            </div>
+        </>
+    ),
+    OPTIONAL: (
+         <>
+            <h2 className="text-2xl font-bold mb-4 text-indigo-300">How to Find Optional Data Files</h2>
+            <p className="mb-4 text-white/90">Follow the same steps to request your data, but when you get to "Select types of information", choose the following instead:</p>
+            <ul className="list-disc list-inside space-y-2 pl-4 font-mono text-white/90">
+                <li><strong>Pending follow requests:</strong> Look for <strong className="text-indigo-300">pending_follow_requests.json</strong></li>
+                <li><strong>Blocked Accounts:</strong> Look for <strong className="text-indigo-300">blocked_accounts.json</strong></li>
+                <li><strong>Unfollowed Accounts:</strong> Unfortunately, Instagram does not provide a direct list of who unfollowed you. This option is for users who may have tracked this data themselves.</li>
+            </ul>
+        </>
+    )
+};
+
 // --- Data Parsing Logic (Pure Function) ---
 const parseList = (content) => {
     if (!content) return [];
@@ -100,11 +160,13 @@ export default function App() {
     // Firebase State
     const [db, setDb] = useState(null);
     const [userId, setUserId] = useState(null);
+    
+    // --- NEW: Help Modal State ---
+    const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
+    const [helpModalContent, setHelpModalContent] = useState(null);
 
     // --- Firebase Initialization ---
     useEffect(() => {
-        // Construct the config object from individual environment variables
-        // This is the recommended and most reliable way for Create React App.
         const firebaseConfig = {
             apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
             authDomain: process.env.REACT_APP_AUTH_DOMAIN,
@@ -114,17 +176,16 @@ export default function App() {
             appId: process.env.REACT_APP_APP_ID,
         };
 
-        // Check if the essential keys are present before trying to initialize
         if (firebaseConfig.apiKey && firebaseConfig.projectId) {
             try {
                 const app = initializeApp(firebaseConfig);
                 const firestoreDb = getFirestore(app);
                 const auth = getAuth(app);
-                setDb(firestoreDb); // Set DB instance
+                setDb(firestoreDb);
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
-                        setUserId(user.uid); // Set user ID
+                        setUserId(user.uid);
                     } else {
                         try {
                             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -143,7 +204,6 @@ export default function App() {
                 setError("Firebase initialization failed.");
             }
         } else {
-             // Fallback for environments where __firebase_config might be injected directly
              const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
              if (firebaseConfigStr) {
                 try {
@@ -152,7 +212,6 @@ export default function App() {
                     const firestoreDb = getFirestore(app);
                     const auth = getAuth(app);
                     setDb(firestoreDb);
-                    // Auth logic remains the same
                      onAuthStateChanged(auth, async (user) => {
                         if (user) {
                             setUserId(user.uid);
@@ -207,7 +266,6 @@ export default function App() {
                 handleFileRead(unfollowedFile)
             ]);
             
-            // Check if at least one list has data
             if ([followers, following, pending, blocked, unfollowed].every(list => list.length === 0)) {
                 setError("Please provide at least one data file or list to analyze.");
                 setIsLoading(false);
@@ -248,7 +306,7 @@ export default function App() {
     
     useEffect(() => {
         const loadPreviousData = async () => {
-            if (db && userId) { // Check for db and userId directly
+            if (db && userId) {
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
                 const docSnap = await getDoc(userDocRef);
@@ -269,7 +327,7 @@ export default function App() {
             }
         };
         loadPreviousData();
-    }, [db, userId]); // Depend directly on db and userId
+    }, [db, userId]);
 
     const resetState = () => {
         setView('main');
@@ -277,6 +335,12 @@ export default function App() {
         setBlockedFile(null); setUnfollowedFile(null);
         setFollowersText(''); setFollowingText(''); setBlockedText('');
         setError('');
+    };
+
+    // --- NEW: Help Modal Control ---
+    const openHelpModal = (content) => {
+        setHelpModalContent(content);
+        setIsHelpModalOpen(true);
     };
 
     // --- Render Logic ---
@@ -292,7 +356,6 @@ export default function App() {
     );
 
     const renderMain = () => {
-        // Determine if any input has been provided to enable the analyze button
         const hasAnyInput = !!(followersFile || followersText || followingFile || followingText || pendingFile || unfollowedFile || blockedFile || blockedText);
 
         return (
@@ -300,7 +363,10 @@ export default function App() {
                 <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Instagram Data</h2>
                 
                 <section className="mb-12">
-                    <h3 className="text-2xl font-semibold text-white text-center mb-6">Follower & Following Data</h3>
+                    <div className="flex justify-center items-center mb-6">
+                        <h3 className="text-2xl font-semibold text-white text-center">Follower & Following Data</h3>
+                        <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PRIMARY)} />
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
                         <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
@@ -310,7 +376,10 @@ export default function App() {
                 </section>
                 
                 <section>
-                    <h3 className="text-2xl font-semibold text-white text-center mb-6">Optional Data</h3>
+                    <div className="flex justify-center items-center mb-6">
+                        <h3 className="text-2xl font-semibold text-white text-center">Optional Data</h3>
+                        <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.OPTIONAL)} />
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                         <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
                         <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
@@ -375,6 +444,12 @@ export default function App() {
     return (
         <main className="min-h-screen w-full bg-gray-900 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 font-sans">
             <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
+            
+            {/* --- NEW: Render Help Modal --- */}
+            <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)}>
+                {helpModalContent}
+            </HelpModal>
+
             <div className="relative z-10 w-full flex items-center justify-center">
                 {view === 'intro' && renderIntro()}
                 {view === 'main' && renderMain()}
