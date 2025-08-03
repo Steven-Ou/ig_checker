@@ -104,7 +104,6 @@ export default function App() {
 
     // --- Firebase Initialization ---
     useEffect(() => {
-        // --- CHANGE START ---
         // Construct the config object from individual environment variables
         // This is the recommended and most reliable way for Create React App.
         const firebaseConfig = {
@@ -115,6 +114,7 @@ export default function App() {
             messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
             appId: process.env.REACT_APP_APP_ID,
         };
+
         // Check if the essential keys are present before trying to initialize
         if (firebaseConfig.apiKey && firebaseConfig.projectId) {
             try {
@@ -179,7 +179,6 @@ export default function App() {
                 setError("Firebase configuration is missing.");
              }
         }
-        // --- CHANGE END ---
     }, []);
 
     // --- Data Processing Logic ---
@@ -208,22 +207,25 @@ export default function App() {
                 blockedText ? Promise.resolve(parseList(blockedText)) : handleFileRead(blockedFile),
                 handleFileRead(unfollowedFile)
             ]);
-
-            if (followers.length === 0 || following.length === 0) {
-                setError("Followers and Following lists are required.");
+            
+            // --- CHANGE START ---
+            // Check if at least one list has data
+            if ([followers, following, pending, blocked, unfollowed].every(list => list.length === 0)) {
+                setError("Please provide at least one data file or list to analyze.");
                 setIsLoading(false);
                 return;
             }
+            // --- CHANGE END ---
 
             const followersSet = new Set(followers);
             const followingSet = new Set(following);
 
             const results = {
-                dontFollowBack: following.filter(user => !followersSet.has(user)),
-                iDontFollowBack: followers.filter(user => !followingSet.has(user)),
-                mutuals: following.filter(user => followersSet.has(user)),
-                unverifiedFollowings: pending.length > 0 ? pending.filter(user => followingSet.has(user)) : [],
-                unfollowedAccounts: unfollowed.length > 0 ? unfollowed.filter(user => followingSet.has(user)) : [],
+                dontFollowBack: (followers.length > 0 && following.length > 0) ? following.filter(user => !followersSet.has(user)) : [],
+                iDontFollowBack: (followers.length > 0 && following.length > 0) ? followers.filter(user => !followingSet.has(user)) : [],
+                mutuals: (followers.length > 0 && following.length > 0) ? following.filter(user => followersSet.has(user)) : [],
+                unverifiedFollowings: pending,
+                unfollowedAccounts: unfollowed,
                 blockedAccounts: blocked
             };
 
@@ -292,49 +294,60 @@ export default function App() {
         </div>
     );
 
-    const renderMain = () => (
-        <div className="w-full max-w-7xl mx-auto animate-fade-in">
-            <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Instagram Data</h2>
-            
-            <section className="mb-12">
-                <h3 className="text-2xl font-semibold text-white text-center mb-6">Required Data</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
-                    <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
-                    <Card><PasteInput label="Paste Followers List" value={followersText} onChange={setFollowersText} /></Card>
-                    <Card><PasteInput label="Paste Following List" value={followingText} onChange={setFollowingText} /></Card>
-                </div>
-            </section>
-            
-            <section>
-                <h3 className="text-2xl font-semibold text-white text-center mb-6">Optional Data</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
-                    <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
-                    <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
-                    <div className="md:col-span-3"><Card><PasteInput label="Paste Blocked Accounts List" value={blockedText} onChange={setBlockedText} /></Card></div>
-                </div>
-            </section>
-            
-            {error && <p className="text-center text-red-400 text-lg my-6">{error}</p>}
+    const renderMain = () => {
+        // --- CHANGE START ---
+        // Determine if any input has been provided to enable the analyze button
+        const hasAnyInput = !!(followersFile || followersText || followingFile || followingText || pendingFile || unfollowedFile || blockedFile || blockedText);
+        // --- CHANGE END ---
 
-            <div className="text-center mt-12 flex justify-center items-center gap-4">
-                <button
-                    onClick={() => setView('intro')}
-                    className="bg-gray-600 text-white font-bold rounded-full py-4 px-10 text-xl hover:bg-gray-500 transition-all duration-300 transform hover:scale-105 shadow-2xl"
-                >
-                    Back
-                </button>
-                <button 
-                    onClick={processData} 
-                    disabled={!db || !userId || isLoading || (!followersFile && !followersText) || (!followingFile && !followingText)} 
-                    className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl"
-                >
-                    {!db || !userId ? 'Connecting...' : isLoading ? 'Processing...' : 'Analyze My Data'}
-                </button>
+        return (
+            <div className="w-full max-w-7xl mx-auto animate-fade-in">
+                <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Instagram Data</h2>
+                
+                <section className="mb-12">
+                    {/* --- CHANGE START --- */}
+                    <h3 className="text-2xl font-semibold text-white text-center mb-6">Follower & Following Data</h3>
+                    {/* --- CHANGE END --- */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
+                        <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
+                        <Card><PasteInput label="Paste Followers List" value={followersText} onChange={setFollowersText} /></Card>
+                        <Card><PasteInput label="Paste Following List" value={followingText} onChange={setFollowingText} /></Card>
+                    </div>
+                </section>
+                
+                <section>
+                    <h3 className="text-2xl font-semibold text-white text-center mb-6">Optional Data</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
+                        <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
+                        <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
+                        <div className="md:col-span-3"><Card><PasteInput label="Paste Blocked Accounts List" value={blockedText} onChange={setBlockedText} /></Card></div>
+                    </div>
+                </section>
+                
+                {error && <p className="text-center text-red-400 text-lg my-6">{error}</p>}
+
+                <div className="text-center mt-12 flex justify-center items-center gap-4">
+                    <button
+                        onClick={() => setView('intro')}
+                        className="bg-gray-600 text-white font-bold rounded-full py-4 px-10 text-xl hover:bg-gray-500 transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                    >
+                        Back
+                    </button>
+                    {/* --- CHANGE START --- */}
+                    <button 
+                        onClick={processData} 
+                        disabled={!db || !userId || isLoading || !hasAnyInput} 
+                        className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl"
+                    >
+                        {!db || !userId ? 'Connecting...' : isLoading ? 'Processing...' : 'Analyze My Data'}
+                    </button>
+                    {/* --- CHANGE END --- */}
+                </div>
             </div>
-        </div>
-    );
+        );
+    }
     
     const renderResults = () => (
         <div className="w-full max-w-7xl mx-auto animate-fade-in">
@@ -344,7 +357,7 @@ export default function App() {
                 <ResultList title="You Don't Follow Back" count={iDontFollowBack.length} users={iDontFollowBack} />
                 <ResultList title="Mutuals" count={mutuals.length} users={mutuals} />
                 <ResultList title="Blocked Accounts" count={blockedAccounts.length} users={blockedAccounts} />
-                <ResultList title="Unverified Followings" count={unverifiedFollowings.length} users={unverifiedFollowings} />
+                <ResultList title="Pending Follow Requests" count={unverifiedFollowings.length} users={unverifiedFollowings} />
                 <ResultList title="Recently Unfollowed You" count={unfollowedAccounts.length} users={unfollowedAccounts} />
              </div>
              <div className="text-center mt-12">
