@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 // import './App.css'; // This is commented out to ensure Tailwind styles apply correctly.
 import { initializeApp } from 'firebase/app';
-import { getAnalytics } from "firebase/analytics";
 import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -208,14 +207,12 @@ export default function App() {
                 handleFileRead(unfollowedFile)
             ]);
             
-            // --- CHANGE START ---
             // Check if at least one list has data
             if ([followers, following, pending, blocked, unfollowed].every(list => list.length === 0)) {
                 setError("Please provide at least one data file or list to analyze.");
                 setIsLoading(false);
                 return;
             }
-            // --- CHANGE END ---
 
             const followersSet = new Set(followers);
             const followingSet = new Set(following);
@@ -295,19 +292,15 @@ export default function App() {
     );
 
     const renderMain = () => {
-        // --- CHANGE START ---
         // Determine if any input has been provided to enable the analyze button
         const hasAnyInput = !!(followersFile || followersText || followingFile || followingText || pendingFile || unfollowedFile || blockedFile || blockedText);
-        // --- CHANGE END ---
 
         return (
             <div className="w-full max-w-7xl mx-auto animate-fade-in">
                 <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Instagram Data</h2>
                 
                 <section className="mb-12">
-                    {/* --- CHANGE START --- */}
                     <h3 className="text-2xl font-semibold text-white text-center mb-6">Follower & Following Data</h3>
-                    {/* --- CHANGE END --- */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
                         <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
@@ -335,7 +328,6 @@ export default function App() {
                     >
                         Back
                     </button>
-                    {/* --- CHANGE START --- */}
                     <button 
                         onClick={processData} 
                         disabled={!db || !userId || isLoading || !hasAnyInput} 
@@ -343,7 +335,6 @@ export default function App() {
                     >
                         {!db || !userId ? 'Connecting...' : isLoading ? 'Processing...' : 'Analyze My Data'}
                     </button>
-                    {/* --- CHANGE END --- */}
                 </div>
             </div>
         );
