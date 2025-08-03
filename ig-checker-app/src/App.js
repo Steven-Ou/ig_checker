@@ -115,7 +115,6 @@ export default function App() {
             messagingSenderId: process.env.REACT_APP_MESSAGING_SENDER_ID,
             appId: process.env.REACT_APP_APP_ID,
         };
-
         // Check if the essential keys are present before trying to initialize
         if (firebaseConfig.apiKey && firebaseConfig.projectId) {
             try {
