@@ -170,9 +170,7 @@ export default function App() {
     // Firebase State
     const [db, setDb] = useState(null);
     const [userId, setUserId] = useState(null);
-    // --- CHANGE START ---
-    const [isFirebaseReady, setIsFirebaseReady] = useState(false); // New state to manage readiness
-    // --- CHANGE END ---
+    const [isFirebaseReady, setIsFirebaseReady] = useState(false);
     
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [helpModalContent, setHelpModalContent] = useState(null);
@@ -201,9 +199,7 @@ export default function App() {
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         setUserId(user.uid);
-                        // --- CHANGE START ---
-                        setIsFirebaseReady(true); // Firebase is ready only after we have a user
-                        // --- CHANGE END ---
+                        setIsFirebaseReady(true);
                     } else {
                         try {
                             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -214,14 +210,14 @@ export default function App() {
                         } catch (authError) {
                             console.error("Firebase Auth Error:", authError);
                             setError("Authentication failed.");
-                            setIsFirebaseReady(true); // Still ready, but with an error
+                            setIsFirebaseReady(true);
                         }
                     }
                 });
             } catch(e) {
                 console.error("Firebase initialization error:", e);
                 setError("Firebase initialization failed.");
-                setIsFirebaseReady(true); // Still ready, but with an error
+                setIsFirebaseReady(true);
             }
         } else {
              const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
@@ -273,10 +269,7 @@ export default function App() {
     }), []);
 
     const processData = useCallback(async () => {
-        // --- CHANGE START ---
-        // Guard clause now checks the new readiness state
         if (!isFirebaseReady || !db || !userId) {
-        // --- CHANGE END ---
             setError("Database is not ready. Please wait.");
             return;
         }
@@ -333,10 +326,7 @@ export default function App() {
     
     useEffect(() => {
         const loadPreviousData = async () => {
-            // --- CHANGE START ---
-            // Guard clause now checks the new readiness state
             if (isFirebaseReady && db && userId) {
-            // --- CHANGE END ---
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
                 const docSnap = await getDoc(userDocRef);
@@ -391,51 +381,55 @@ export default function App() {
             <div className="w-full max-w-7xl mx-auto animate-fade-in">
                 <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Instagram Data</h2>
                 
-                <section className="mb-12">
-                    <div className="flex justify-center items-center mb-6">
-                        <h3 className="text-2xl font-semibold text-white text-center">Follower & Following Data</h3>
-                        <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PRIMARY)} />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
-                        <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
-                        
-                        <Card>
-                            <div className="flex justify-center items-center mb-3">
-                                <label className="block text-lg font-semibold text-white text-center">Paste Followers List</label>
-                                <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
-                            </div>
-                            <PasteInput value={followersText} onChange={setFollowersText} placeholder="Paste followers here..." />
-                        </Card>
-                         <Card>
-                            <div className="flex justify-center items-center mb-3">
-                                <label className="block text-lg font-semibold text-white text-center">Paste Following List</label>
-                                <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
-                            </div>
-                            <PasteInput value={followingText} onChange={setFollowingText} placeholder="Paste following here..." />
-                        </Card>
-                    </div>
-                </section>
-                
-                <section>
-                    <div className="flex justify-center items-center mb-6">
-                        <h3 className="text-2xl font-semibold text-white text-center">Optional Data</h3>
-                        <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.OPTIONAL)} />
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
-                        <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
-                        <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
-                        
-                        <Card className="md:col-span-3">
-                            <div className="flex justify-center items-center mb-3">
-                                <label className="block text-lg font-semibold text-white text-center">Paste Blocked Accounts List</label>
-                                <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
-                            </div>
-                            <PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." />
-                        </Card>
-                    </div>
-                </section>
+                {/* --- CHANGE START --- */}
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
+                    <section className="mb-12">
+                        <div className="flex justify-center items-center mb-6">
+                            <h3 className="text-2xl font-semibold text-white text-center">Follower & Following Data</h3>
+                            <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PRIMARY)} />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
+                            <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
+                            
+                            <Card>
+                                <div className="flex justify-center items-center mb-3">
+                                    <label className="block text-lg font-semibold text-white text-center">Paste Followers List</label>
+                                    <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
+                                </div>
+                                <PasteInput value={followersText} onChange={setFollowersText} placeholder="Paste followers here..." />
+                            </Card>
+                             <Card>
+                                <div className="flex justify-center items-center mb-3">
+                                    <label className="block text-lg font-semibold text-white text-center">Paste Following List</label>
+                                    <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
+                                </div>
+                                <PasteInput value={followingText} onChange={setFollowingText} placeholder="Paste following here..." />
+                            </Card>
+                        </div>
+                    </section>
+                    
+                    <section>
+                        <div className="flex justify-center items-center mb-6">
+                            <h3 className="text-2xl font-semibold text-white text-center">Optional Data</h3>
+                            <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.OPTIONAL)} />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                            <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
+                            <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
+                            <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
+                            
+                            <Card className="md:col-span-3">
+                                <div className="flex justify-center items-center mb-3">
+                                    <label className="block text-lg font-semibold text-white text-center">Paste Blocked Accounts List</label>
+                                    <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
+                                </div>
+                                <PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." />
+                            </Card>
+                        </div>
+                    </section>
+                </div>
+                {/* --- CHANGE END --- */}
                 
                 {error && <p className="text-center text-red-400 text-lg my-6">{error}</p>}
 
@@ -477,10 +471,7 @@ export default function App() {
         </div>
     );
 
-    // --- CHANGE START ---
-    // Show a global loading screen until Firebase is fully ready
     if (!isFirebaseReady) {
-    // --- CHANGE END ---
         return (
             <main className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center">
                  <svg className="animate-spin h-10 w-10 text-white mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
