@@ -71,7 +71,6 @@ const HelpIcon = ({ onClick }) => (
     </button>
 );
 
-// --- NEW: AI Insight Swiper Component ---
 const AiInsightSwiper = ({ insights, isLoading }) => {
     const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -233,7 +232,6 @@ export default function App() {
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [helpModalContent, setHelpModalContent] = useState(null);
     
-    // --- MODIFIED: AI state now holds an array of insights ---
     const [aiInsights, setAiInsights] = useState([]);
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -427,7 +425,6 @@ export default function App() {
         setIsHelpModalOpen(true);
     };
 
-    // --- MODIFIED: AI function now requests and parses structured JSON ---
     const getAiInsights = async () => {
         setIsAiLoading(true);
         setAiInsights([]);
@@ -598,11 +595,13 @@ export default function App() {
                  <button onClick={resetState} className="bg-indigo-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl">
                     Start Over
                 </button>
+                {/* --- CHANGE START --- */}
                 <button 
                     onClick={getAiInsights} 
-                    className="bg-purple-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-purple-400 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center"
-                    disabled={isAiLoading}
+                    className="bg-purple-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-purple-400 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center disabled:bg-gray-600 disabled:cursor-not-allowed"
+                    disabled={isAiLoading || (dontFollowBack.length === 0 && mutuals.length === 0)}
                 >
+                {/* --- CHANGE END --- */}
                     <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                         <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v.518A7 7 0 0117.5 10.5a.75.75 0 01-1.5 0A5.5 5.5 0 0010.75 5.272V4.5a.75.75 0 01-.75-.75zM10 18a7 7 0 01-7-7 .75.75 0 011.5 0A5.5 5.5 0 0010 16.5a.75.75 0 010 1.5zM3.055 6.445A.75.75 0 014 6a5.5 5.5 0 007.002 7.002.75.75 0 11-1 1.224A7 7 0 013.055 6.445z" clipRule="evenodd" />
                         <path d="M10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6z" />
@@ -633,7 +632,6 @@ export default function App() {
                 {helpModalContent}
             </HelpModal>
             
-            {/* --- MODIFIED: The modal now contains the swiper component --- */}
             <HelpModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)}>
                  <AiInsightSwiper insights={aiInsights} isLoading={isAiLoading} />
             </HelpModal>
