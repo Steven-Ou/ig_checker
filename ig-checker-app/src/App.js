@@ -27,8 +27,6 @@ const FileInput = ({ label, onFileSelect, id }) => (
 );
 
 const PasteInput = ({ value, onChange, placeholder }) => (
-    // --- CHANGE START ---
-    // Added flex-grow to ensure this div expands vertically
     <div className="w-full flex-grow flex flex-col">
         <textarea
             value={value}
@@ -174,8 +172,15 @@ export default function App() {
     const [userId, setUserId] = useState(null);
     const [isFirebaseReady, setIsFirebaseReady] = useState(false);
     
+    // Help Modal State
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [helpModalContent, setHelpModalContent] = useState(null);
+    
+    // --- NEW: AI State Management ---
+    const [aiInsight, setAiInsight] = useState('');
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+
 
     // --- Firebase Initialization ---
     useEffect(() => {
@@ -357,12 +362,29 @@ export default function App() {
         setBlockedFile(null); setUnfollowedFile(null);
         setFollowersText(''); setFollowingText(''); setBlockedText('');
         setError('');
+        setAiInsight(''); // Clear AI insight on reset
     };
 
     const openHelpModal = (content) => {
         setHelpModalContent(content);
         setIsHelpModalOpen(true);
     };
+
+    // --- NEW: AI Insight Function ---
+    const getAiInsights = async () => {
+        setIsAiLoading(true);
+        setAiInsight(''); // Clear previous insights
+        setIsAiModalOpen(true); // Open the modal immediately
+
+        // This is a placeholder for the real AI call.
+        // In the next step, we will replace this with a fetch request to the Gemini API.
+        setTimeout(() => {
+            const mockInsight = "Based on your 'Don't Follow Back' list, it seems many are content creators or business accounts. To re-engage them, consider creating content that provides value to their niche, such as tutorials, industry insights, or collaborative opportunities. Your mutual followers show a strong interest in digital art and photography.";
+            setAiInsight(mockInsight);
+            setIsAiLoading(false);
+        }, 2000); // Simulate a 2-second API call
+    };
+
 
     // --- Render Logic ---
 
@@ -393,10 +415,7 @@ export default function App() {
                             <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
                             <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
                             
-                            {/* --- CHANGE START --- */}
-                            {/* Added flex flex-col to make the card a flex container */}
                             <Card className="flex flex-col">
-                            {/* --- CHANGE END --- */}
                                 <div className="flex justify-center items-center mb-3">
                                     <label className="block text-lg font-semibold text-white text-center">Paste Followers List</label>
                                     <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
@@ -466,9 +485,21 @@ export default function App() {
                 <ResultList title="Pending Follow Requests" count={unverifiedFollowings.length} users={unverifiedFollowings} />
                 <ResultList title="Recently Unfollowed You" count={unfollowedAccounts.length} users={unfollowedAccounts} />
              </div>
-             <div className="text-center mt-12">
+             {/* --- NEW: AI Insight Button --- */}
+             <div className="text-center mt-12 flex justify-center items-center gap-4">
                  <button onClick={resetState} className="bg-indigo-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl">
                     Start Over
+                </button>
+                <button 
+                    onClick={getAiInsights} 
+                    className="bg-purple-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-purple-400 transition-all duration-300 transform hover:scale-105 shadow-2xl flex items-center"
+                    disabled={isAiLoading}
+                >
+                    <svg className="w-5 h-5 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a.75.75 0 01.75.75v.518A7 7 0 0117.5 10.5a.75.75 0 01-1.5 0A5.5 5.5 0 0010.75 5.272V4.5a.75.75 0 01-.75-.75zM10 18a7 7 0 01-7-7 .75.75 0 011.5 0A5.5 5.5 0 0010 16.5a.75.75 0 010 1.5zM3.055 6.445A.75.75 0 014 6a5.5 5.5 0 007.002 7.002.75.75 0 11-1 1.224A7 7 0 013.055 6.445z" clipRule="evenodd" />
+                        <path d="M10 6a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 6z" />
+                    </svg>
+                    {isAiLoading ? 'Analyzing...' : 'Get AI Insights'}
                 </button>
              </div>
         </div>
@@ -492,6 +523,22 @@ export default function App() {
             
             <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)}>
                 {helpModalContent}
+            </HelpModal>
+            
+            {/* --- NEW: AI Insight Modal --- */}
+            <HelpModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)}>
+                 <h2 className="text-2xl font-bold mb-4 text-purple-300">AI Follower Analysis</h2>
+                 {isAiLoading ? (
+                    <div className="flex items-center justify-center">
+                        <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p className="ml-4 text-lg">Generating insights...</p>
+                    </div>
+                 ) : (
+                    <p className="text-white/90 whitespace-pre-wrap">{aiInsight}</p>
+                 )}
             </HelpModal>
 
             <div className="relative z-10 w-full flex items-center justify-center">
