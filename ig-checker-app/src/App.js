@@ -466,7 +466,7 @@ export default function App() {
                 </svg>
                 <p className="text-xl">{error ? error : "Connecting securely..."}</p>
             </main>
-        )
+        );
     }
 
     return (
@@ -483,4 +483,5 @@ export default function App() {
                 {view === 'results' && renderResults()}
             </div>
         </main>
-    )
+    );
+}
