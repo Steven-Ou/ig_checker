@@ -369,13 +369,11 @@ export default function App() {
         setIsHelpModalOpen(true);
     };
 
-    // --- MODIFIED: AI Insight Function with Live API Call ---
     const getAiInsights = async () => {
         setIsAiLoading(true);
         setAiInsight('');
         setIsAiModalOpen(true);
 
-        // Prepare a sample of the data to send to the AI
         const dontFollowBackSample = dontFollowBack.slice(0, 50).join(', ');
         const mutualsSample = mutuals.slice(0, 50).join(', ');
 
@@ -398,7 +396,10 @@ export default function App() {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
             const payload = { contents: chatHistory };
-            const apiKey = ""; // API key is handled by the environment
+            // --- CHANGE START ---
+            // Read the API Key from the environment variables
+            const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
+            // --- CHANGE END ---
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
             const response = await fetch(apiUrl, {
