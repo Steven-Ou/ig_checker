@@ -27,7 +27,10 @@ const FileInput = ({ label, onFileSelect, id }) => (
 );
 
 const PasteInput = ({ value, onChange, placeholder }) => (
-    <div className="w-full h-full flex flex-col">
+    // --- CHANGE START ---
+    // Added flex-grow to ensure this div expands vertically
+    <div className="w-full flex-grow flex flex-col">
+    // --- CHANGE END ---
         <textarea
             value={value}
             onChange={e => onChange(e.target.value)}
@@ -381,7 +384,6 @@ export default function App() {
             <div className="w-full max-w-7xl mx-auto animate-fade-in">
                 <h2 className="text-4xl font-bold text-white text-center mb-8">Provide Your Instagram Data</h2>
                 
-                {/* --- CHANGE START --- */}
                 <div className="bg-white/5 border border-white/10 rounded-2xl p-8">
                     <section className="mb-12">
                         <div className="flex justify-center items-center mb-6">
@@ -392,14 +394,17 @@ export default function App() {
                             <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
                             <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
                             
-                            <Card>
+                            {/* --- CHANGE START --- */}
+                            {/* Added flex flex-col to make the card a flex container */}
+                            <Card className="flex flex-col">
+                            {/* --- CHANGE END --- */}
                                 <div className="flex justify-center items-center mb-3">
                                     <label className="block text-lg font-semibold text-white text-center">Paste Followers List</label>
                                     <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
                                 </div>
                                 <PasteInput value={followersText} onChange={setFollowersText} placeholder="Paste followers here..." />
                             </Card>
-                             <Card>
+                             <Card className="flex flex-col">
                                 <div className="flex justify-center items-center mb-3">
                                     <label className="block text-lg font-semibold text-white text-center">Paste Following List</label>
                                     <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
@@ -419,7 +424,7 @@ export default function App() {
                             <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
                             <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
                             
-                            <Card className="md:col-span-3">
+                            <Card className="md:col-span-3 flex flex-col">
                                 <div className="flex justify-center items-center mb-3">
                                     <label className="block text-lg font-semibold text-white text-center">Paste Blocked Accounts List</label>
                                     <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
@@ -429,7 +434,6 @@ export default function App() {
                         </div>
                     </section>
                 </div>
-                {/* --- CHANGE END --- */}
                 
                 {error && <p className="text-center text-red-400 text-lg my-6">{error}</p>}
 
