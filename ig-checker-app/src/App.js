@@ -71,6 +71,63 @@ const HelpIcon = ({ onClick }) => (
     </button>
 );
 
+// --- NEW: AI Insight Swiper Component ---
+const AiInsightSwiper = ({ insights, isLoading }) => {
+    const [currentIndex, setCurrentIndex] = useState(0);
+
+    const goToPrevious = () => {
+        const isFirstSlide = currentIndex === 0;
+        const newIndex = isFirstSlide ? insights.length - 1 : currentIndex - 1;
+        setCurrentIndex(newIndex);
+    };
+
+    const goToNext = () => {
+        const isLastSlide = currentIndex === insights.length - 1;
+        const newIndex = isLastSlide ? 0 : currentIndex + 1;
+        setCurrentIndex(newIndex);
+    };
+
+    return (
+        <div>
+            <h2 className="text-2xl font-bold mb-4 text-purple-300">AI Follower Analysis</h2>
+            <div className="relative h-64">
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-full">
+                        <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <p className="ml-4 text-lg">Generating insights...</p>
+                    </div>
+                ) : insights.length > 0 ? (
+                    <>
+                        <div className="h-full overflow-y-auto pr-2">
+                            <h3 className="text-xl font-semibold text-indigo-300 mb-2">{insights[currentIndex].title}</h3>
+                            <p className="text-white/90 whitespace-pre-wrap">{insights[currentIndex].content}</p>
+                        </div>
+                        {/* Left Arrow */}
+                        <div onClick={goToPrevious} className="absolute top-1/2 -left-8 transform -translate-y-1/2 cursor-pointer text-white/50 hover:text-white">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                        </div>
+                        {/* Right Arrow */}
+                        <div onClick={goToNext} className="absolute top-1/2 -right-8 transform -translate-y-1/2 cursor-pointer text-white/50 hover:text-white">
+                             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                        </div>
+                    </>
+                ) : (
+                    <p className="text-white/90">Sorry, no insights could be generated at this time.</p>
+                )}
+            </div>
+            <div className="flex justify-center pt-4">
+                {insights.map((slide, slideIndex) => (
+                    <div key={slideIndex} onClick={() => setCurrentIndex(slideIndex)} className={`mx-1 h-2 w-2 rounded-full cursor-pointer ${currentIndex === slideIndex ? 'bg-indigo-400' : 'bg-gray-600'}`}></div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+
 const HELP_CONTENT = {
     PRIMARY: (
         <>
@@ -176,7 +233,8 @@ export default function App() {
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [helpModalContent, setHelpModalContent] = useState(null);
     
-    const [aiInsight, setAiInsight] = useState('');
+    // --- MODIFIED: AI state now holds an array of insights ---
+    const [aiInsights, setAiInsights] = useState([]);
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
@@ -361,7 +419,7 @@ export default function App() {
         setBlockedFile(null); setUnfollowedFile(null);
         setFollowersText(''); setFollowingText(''); setBlockedText('');
         setError('');
-        setAiInsight('');
+        setAiInsights([]);
     };
 
     const openHelpModal = (content) => {
@@ -369,37 +427,44 @@ export default function App() {
         setIsHelpModalOpen(true);
     };
 
+    // --- MODIFIED: AI function now requests and parses structured JSON ---
     const getAiInsights = async () => {
         setIsAiLoading(true);
-        setAiInsight('');
+        setAiInsights([]);
         setIsAiModalOpen(true);
 
         const dontFollowBackSample = dontFollowBack.slice(0, 50).join(', ');
         const mutualsSample = mutuals.slice(0, 50).join(', ');
 
         const prompt = `
-            As a social media analyst, review the following Instagram data and provide actionable insights.
-
-            Here is a list of accounts that DO NOT follow me back:
-            ${dontFollowBackSample}
-
-            Here is a list of accounts that are MUTUALS (we follow each other):
-            ${mutualsSample}
-
-            Based on this data, please provide:
-            1.  A brief analysis of the types of accounts that don't follow back (e.g., creators, businesses, inactive accounts).
-            2.  Suggestions for content or engagement strategies to convert non-followers or re-engage mutuals.
-            3.  An observation about my likely interests or niche based on the mutual followers.
+            Analyze the following Instagram data and provide actionable insights.
+            Accounts that DO NOT follow me back: ${dontFollowBackSample}
+            Accounts that are MUTUALS: ${mutualsSample}
         `;
-
+        
         try {
             let chatHistory = [];
             chatHistory.push({ role: "user", parts: [{ text: prompt }] });
-            const payload = { contents: chatHistory };
-            // --- CHANGE START ---
-            // Read the API Key from the environment variables
+
+            const payload = {
+                contents: chatHistory,
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "ARRAY",
+                        items: {
+                            type: "OBJECT",
+                            properties: {
+                                title: { type: "STRING" },
+                                content: { type: "STRING" }
+                            },
+                            required: ["title", "content"]
+                        }
+                    }
+                }
+            };
+            
             const apiKey = process.env.REACT_APP_GEMINI_API_KEY;
-            // --- CHANGE END ---
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
             
             const response = await fetch(apiUrl, {
@@ -414,17 +479,16 @@ export default function App() {
 
             const result = await response.json();
             
-            if (result.candidates && result.candidates.length > 0 &&
-                result.candidates[0].content && result.candidates[0].content.parts &&
-                result.candidates[0].content.parts.length > 0) {
-                const text = result.candidates[0].content.parts[0].text;
-                setAiInsight(text);
+            if (result.candidates && result.candidates[0]?.content?.parts?.[0]?.text) {
+                const jsonText = result.candidates[0].content.parts[0].text;
+                const parsedJson = JSON.parse(jsonText);
+                setAiInsights(parsedJson);
             } else {
-                setAiInsight("Sorry, the AI could not generate insights at this time. The response was empty.");
+                setAiInsights([{ title: "Error", content: "Sorry, the AI could not generate insights at this time. The response was empty." }]);
             }
         } catch (error) {
             console.error("AI Insight Error:", error);
-            setAiInsight("Sorry, an error occurred while generating insights. Please try again later.");
+            setAiInsights([{ title: "Error", content: "Sorry, an error occurred while generating insights. Please try again later." }]);
         } finally {
             setIsAiLoading(false);
         }
@@ -569,19 +633,9 @@ export default function App() {
                 {helpModalContent}
             </HelpModal>
             
+            {/* --- MODIFIED: The modal now contains the swiper component --- */}
             <HelpModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)}>
-                 <h2 className="text-2xl font-bold mb-4 text-purple-300">AI Follower Analysis</h2>
-                 {isAiLoading ? (
-                    <div className="flex items-center justify-center">
-                        <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <p className="ml-4 text-lg">Generating insights...</p>
-                    </div>
-                 ) : (
-                    <p className="text-white/90 whitespace-pre-wrap">{aiInsight}</p>
-                 )}
+                 <AiInsightSwiper insights={aiInsights} isLoading={isAiLoading} />
             </HelpModal>
 
             <div className="relative z-10 w-full flex items-center justify-center">
