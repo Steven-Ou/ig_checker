@@ -372,7 +372,7 @@ export default function App() {
                 
                 <section className="mb-12">
                     <div className="flex justify-center items-center mb-6">
-                        <h3 className="text-2xl font-semibold text-white text-center">Follower & Following Data (File Upload)</h3>
+                        <h3 className="text-2xl font-semibold text-white text-center">Follower & Following Data</h3>
                         <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PRIMARY)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -405,7 +405,7 @@ export default function App() {
                         <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
                         <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
                         <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
-                        {/* --- CHANGE START --- */}
+                        
                         <Card className="md:col-span-3">
                             <div className="flex justify-center items-center mb-3">
                                 <label className="block text-lg font-semibold text-white text-center">Paste Blocked Accounts List</label>
@@ -413,7 +413,6 @@ export default function App() {
                             </div>
                             <PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." />
                         </Card>
-                        {/* --- CHANGE END --- */}
                     </div>
                 </section>
                 
@@ -484,5 +483,4 @@ export default function App() {
                 {view === 'results' && renderResults()}
             </div>
         </main>
-    );
-}
+    )
