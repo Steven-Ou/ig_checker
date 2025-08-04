@@ -26,7 +26,6 @@ const FileInput = ({ label, onFileSelect, id }) => (
     </div>
 );
 
-// --- MODIFIED: PasteInput component no longer needs its own label ---
 const PasteInput = ({ value, onChange, placeholder }) => (
     <div className="w-full h-full flex flex-col">
         <textarea
@@ -72,7 +71,6 @@ const HelpIcon = ({ onClick }) => (
     </button>
 );
 
-// --- MODIFIED: Added new PASTE content ---
 const HELP_CONTENT = {
     PRIMARY: (
         <>
@@ -381,7 +379,6 @@ export default function App() {
                         <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
                         <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
                         
-                        {/* --- MODIFIED: Added help icons to paste boxes --- */}
                         <Card>
                             <div className="flex justify-center items-center mb-3">
                                 <label className="block text-lg font-semibold text-white text-center">Paste Followers List</label>
@@ -408,7 +405,15 @@ export default function App() {
                         <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
                         <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
                         <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
-                        <div className="md:col-span-3"><Card><PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." /></Card></div>
+                        {/* --- CHANGE START --- */}
+                        <Card className="md:col-span-3">
+                            <div className="flex justify-center items-center mb-3">
+                                <label className="block text-lg font-semibold text-white text-center">Paste Blocked Accounts List</label>
+                                <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
+                            </div>
+                            <PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." />
+                        </Card>
+                        {/* --- CHANGE END --- */}
                     </div>
                 </section>
                 
