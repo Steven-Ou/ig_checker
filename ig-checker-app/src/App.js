@@ -30,7 +30,6 @@ const PasteInput = ({ value, onChange, placeholder }) => (
     // --- CHANGE START ---
     // Added flex-grow to ensure this div expands vertically
     <div className="w-full flex-grow flex flex-col">
-    // --- CHANGE END ---
         <textarea
             value={value}
             onChange={e => onChange(e.target.value)}
