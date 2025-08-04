@@ -176,7 +176,6 @@ export default function App() {
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [helpModalContent, setHelpModalContent] = useState(null);
     
-    // --- NEW: AI State Management ---
     const [aiInsight, setAiInsight] = useState('');
     const [isAiLoading, setIsAiLoading] = useState(false);
     const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -362,7 +361,7 @@ export default function App() {
         setBlockedFile(null); setUnfollowedFile(null);
         setFollowersText(''); setFollowingText(''); setBlockedText('');
         setError('');
-        setAiInsight(''); // Clear AI insight on reset
+        setAiInsight('');
     };
 
     const openHelpModal = (content) => {
@@ -370,19 +369,64 @@ export default function App() {
         setIsHelpModalOpen(true);
     };
 
-    // --- NEW: AI Insight Function ---
+    // --- MODIFIED: AI Insight Function with Live API Call ---
     const getAiInsights = async () => {
         setIsAiLoading(true);
-        setAiInsight(''); // Clear previous insights
-        setIsAiModalOpen(true); // Open the modal immediately
+        setAiInsight('');
+        setIsAiModalOpen(true);
 
-        // This is a placeholder for the real AI call.
-        // In the next step, we will replace this with a fetch request to the Gemini API.
-        setTimeout(() => {
-            const mockInsight = "Based on your 'Don't Follow Back' list, it seems many are content creators or business accounts. To re-engage them, consider creating content that provides value to their niche, such as tutorials, industry insights, or collaborative opportunities. Your mutual followers show a strong interest in digital art and photography.";
-            setAiInsight(mockInsight);
+        // Prepare a sample of the data to send to the AI
+        const dontFollowBackSample = dontFollowBack.slice(0, 50).join(', ');
+        const mutualsSample = mutuals.slice(0, 50).join(', ');
+
+        const prompt = `
+            As a social media analyst, review the following Instagram data and provide actionable insights.
+
+            Here is a list of accounts that DO NOT follow me back:
+            ${dontFollowBackSample}
+
+            Here is a list of accounts that are MUTUALS (we follow each other):
+            ${mutualsSample}
+
+            Based on this data, please provide:
+            1.  A brief analysis of the types of accounts that don't follow back (e.g., creators, businesses, inactive accounts).
+            2.  Suggestions for content or engagement strategies to convert non-followers or re-engage mutuals.
+            3.  An observation about my likely interests or niche based on the mutual followers.
+        `;
+
+        try {
+            let chatHistory = [];
+            chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+            const payload = { contents: chatHistory };
+            const apiKey = ""; // API key is handled by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.candidates && result.candidates.length > 0 &&
+                result.candidates[0].content && result.candidates[0].content.parts &&
+                result.candidates[0].content.parts.length > 0) {
+                const text = result.candidates[0].content.parts[0].text;
+                setAiInsight(text);
+            } else {
+                setAiInsight("Sorry, the AI could not generate insights at this time. The response was empty.");
+            }
+        } catch (error) {
+            console.error("AI Insight Error:", error);
+            setAiInsight("Sorry, an error occurred while generating insights. Please try again later.");
+        } finally {
             setIsAiLoading(false);
-        }, 2000); // Simulate a 2-second API call
+        }
     };
 
 
@@ -485,7 +529,6 @@ export default function App() {
                 <ResultList title="Pending Follow Requests" count={unverifiedFollowings.length} users={unverifiedFollowings} />
                 <ResultList title="Recently Unfollowed You" count={unfollowedAccounts.length} users={unfollowedAccounts} />
              </div>
-             {/* --- NEW: AI Insight Button --- */}
              <div className="text-center mt-12 flex justify-center items-center gap-4">
                  <button onClick={resetState} className="bg-indigo-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl">
                     Start Over
@@ -525,7 +568,6 @@ export default function App() {
                 {helpModalContent}
             </HelpModal>
             
-            {/* --- NEW: AI Insight Modal --- */}
             <HelpModal isOpen={isAiModalOpen} onClose={() => setIsAiModalOpen(false)}>
                  <h2 className="text-2xl font-bold mb-4 text-purple-300">AI Follower Analysis</h2>
                  {isAiLoading ? (
