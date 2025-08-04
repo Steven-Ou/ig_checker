@@ -182,32 +182,43 @@ const parseList = (content) => {
     if (!content) return [];
     try {
         const data = JSON.parse(content);
+        let listData = [];
+
+        // Check if the parsed data is an array directly (like followers_1.json)
         if (Array.isArray(data)) {
-            // --- CHANGE START ---
-            // This logic is now more robust. It attempts to map the known JSON structure,
-            // filtering out any items that don't match, rather than failing completely.
-            const usernames = data
+            listData = data;
+        } 
+        // Check if it's an object that contains the list (like following.json)
+        else if (typeof data === 'object' && data !== null) {
+            // Find the key that contains the array of users (e.g., "relationships_following")
+            const key = Object.keys(data).find(k => Array.isArray(data[k]));
+            if (key) {
+                listData = data[key];
+            }
+        }
+
+        // If we found a list, process it to get usernames
+        if (listData.length > 0) {
+            const usernames = listData
                 .map(item => item?.string_list_data?.[0]?.value)
-                .filter(Boolean); // Filter out any null/undefined values from non-matching items
+                .filter(Boolean); // Filter out any null/undefined values
 
             if (usernames.length > 0) {
                 return usernames;
             }
-            // --- CHANGE END ---
-
-            // Fallback for a simple array of strings, just in case.
-            if (data.every(item => typeof item === 'string')) {
-                return data;
-            }
         }
+
+        // Fallback for a simple array of strings, just in case.
+        if (Array.isArray(data) && data.every(item => typeof item === 'string')) {
+            return data;
+        }
+
     } catch (e) {
         // This logic handles pasted text, which is not valid JSON.
-        // It's now smarter to handle messy pasted text from Instagram.
         return content.split('\n').map(line => {
-            // Trim the line, then split by spaces to isolate the username, which is usually the first part.
             const parts = line.trim().split(/\s+/);
-            return parts[0]; // Return the first part, which should be the username
-        }).filter(Boolean); // Filter out any empty lines that might result
+            return parts[0];
+        }).filter(Boolean);
     }
     return []; // Return empty if no valid data could be parsed
 };
