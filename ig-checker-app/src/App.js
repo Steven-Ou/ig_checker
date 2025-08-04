@@ -26,14 +26,14 @@ const FileInput = ({ label, onFileSelect, id }) => (
     </div>
 );
 
-const PasteInput = ({ label, value, onChange }) => (
+// --- MODIFIED: PasteInput component no longer needs its own label ---
+const PasteInput = ({ value, onChange, placeholder }) => (
     <div className="w-full h-full flex flex-col">
-        <label className="block text-lg font-semibold text-white mb-3 text-center">{label}</label>
         <textarea
             value={value}
             onChange={e => onChange(e.target.value)}
             className="w-full flex-grow p-4 bg-gray-800/50 text-white rounded-lg border-2 border-gray-600 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 transition-all duration-300"
-            placeholder="Paste your list here..."
+            placeholder={placeholder}
         />
     </div>
 );
@@ -51,7 +51,6 @@ const ResultList = ({ title, count, users }) => (
     </Card>
 );
 
-// --- NEW: Help Modal Component ---
 const HelpModal = ({ isOpen, onClose, children }) => {
     if (!isOpen) return null;
 
@@ -67,20 +66,19 @@ const HelpModal = ({ isOpen, onClose, children }) => {
     );
 };
 
-// --- NEW: Help Icon Component ---
 const HelpIcon = ({ onClick }) => (
     <button onClick={onClick} className="ml-2 text-indigo-300 hover:text-indigo-100 transition-colors focus:outline-none">
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.546-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
     </button>
 );
 
-// --- NEW: Help Content Definitions ---
+// --- MODIFIED: Added new PASTE content ---
 const HELP_CONTENT = {
     PRIMARY: (
         <>
             <h2 className="text-2xl font-bold mb-4 text-indigo-300">How to Find Your Followers & Following Files</h2>
             <div className="space-y-4 text-white/90">
-                <p>To get your data, you need to request a download from Instagram:</p>
+                <p>This is the most reliable method. To get your data, you need to request a download from Instagram:</p>
                 <ol className="list-decimal list-inside space-y-2 pl-4">
                     <li>Go to your Instagram Profile &gt; <strong>Settings and privacy</strong> &gt; <strong>Accounts Center</strong>.</li>
                     <li>Select <strong>Your information and permissions</strong> &gt; <strong>Download your information</strong>.</li>
@@ -107,6 +105,20 @@ const HELP_CONTENT = {
                 <li><strong>Blocked Accounts:</strong> Look for <strong className="text-indigo-300">blocked_accounts.json</strong></li>
                 <li><strong>Unfollowed Accounts:</strong> Unfortunately, Instagram does not provide a direct list of who unfollowed you. This option is for users who may have tracked this data themselves.</li>
             </ul>
+        </>
+    ),
+    PASTE: (
+         <>
+            <h2 className="text-2xl font-bold mb-4 text-indigo-300">How to Copy & Paste Your Lists</h2>
+            <p className="mb-4 text-white/90">This is a quick alternative if you don't want to download your files. This method works best on a desktop browser.</p>
+            <ol className="list-decimal list-inside space-y-2 pl-4">
+                <li>Go to your Instagram profile on your computer.</li>
+                <li>Click on your "Followers" or "Following" count to open the list in a pop-up.</li>
+                <li><strong>Scroll all the way to the bottom</strong> of the list until every account has loaded. This is very important!</li>
+                <li>Click at the beginning of the first username, hold the mouse button down, and drag your cursor all the way to the end of the last username to select the entire list.</li>
+                <li>Copy the selected text (you can right-click and choose "Copy", or press Ctrl+C / Cmd+C).</li>
+                <li>Paste the copied list into the correct box in this app.</li>
+            </ol>
         </>
     )
 };
@@ -161,7 +173,6 @@ export default function App() {
     const [db, setDb] = useState(null);
     const [userId, setUserId] = useState(null);
     
-    // --- NEW: Help Modal State ---
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [helpModalContent, setHelpModalContent] = useState(null);
 
@@ -337,7 +348,6 @@ export default function App() {
         setError('');
     };
 
-    // --- NEW: Help Modal Control ---
     const openHelpModal = (content) => {
         setHelpModalContent(content);
         setIsHelpModalOpen(true);
@@ -364,14 +374,28 @@ export default function App() {
                 
                 <section className="mb-12">
                     <div className="flex justify-center items-center mb-6">
-                        <h3 className="text-2xl font-semibold text-white text-center">Follower & Following Data</h3>
+                        <h3 className="text-2xl font-semibold text-white text-center">Follower & Following Data (File Upload)</h3>
                         <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PRIMARY)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <Card><FileInput label="Followers File" id="followers-file" onFileSelect={setFollowersFile} /></Card>
                         <Card><FileInput label="Following File" id="following-file" onFileSelect={setFollowingFile} /></Card>
-                        <Card><PasteInput label="Paste Followers List" value={followersText} onChange={setFollowersText} /></Card>
-                        <Card><PasteInput label="Paste Following List" value={followingText} onChange={setFollowingText} /></Card>
+                        
+                        {/* --- MODIFIED: Added help icons to paste boxes --- */}
+                        <Card>
+                            <div className="flex justify-center items-center mb-3">
+                                <label className="block text-lg font-semibold text-white text-center">Paste Followers List</label>
+                                <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
+                            </div>
+                            <PasteInput value={followersText} onChange={setFollowersText} placeholder="Paste followers here..." />
+                        </Card>
+                         <Card>
+                            <div className="flex justify-center items-center mb-3">
+                                <label className="block text-lg font-semibold text-white text-center">Paste Following List</label>
+                                <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
+                            </div>
+                            <PasteInput value={followingText} onChange={setFollowingText} placeholder="Paste following here..." />
+                        </Card>
                     </div>
                 </section>
                 
@@ -384,7 +408,7 @@ export default function App() {
                         <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
                         <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
                         <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
-                        <div className="md:col-span-3"><Card><PasteInput label="Paste Blocked Accounts List" value={blockedText} onChange={setBlockedText} /></Card></div>
+                        <div className="md:col-span-3"><Card><PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." /></Card></div>
                     </div>
                 </section>
                 
@@ -445,7 +469,6 @@ export default function App() {
         <main className="min-h-screen w-full bg-gray-900 bg-gradient-to-br from-gray-900 via-indigo-900 to-purple-900 text-white flex flex-col items-center justify-center p-4 sm:p-6 md:p-8 font-sans">
             <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>
             
-            {/* --- NEW: Render Help Modal --- */}
             <HelpModal isOpen={isHelpModalOpen} onClose={() => setIsHelpModalOpen(false)}>
                 {helpModalContent}
             </HelpModal>
