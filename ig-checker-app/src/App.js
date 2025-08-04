@@ -170,6 +170,9 @@ export default function App() {
     // Firebase State
     const [db, setDb] = useState(null);
     const [userId, setUserId] = useState(null);
+    // --- CHANGE START ---
+    const [isFirebaseReady, setIsFirebaseReady] = useState(false); // New state to manage readiness
+    // --- CHANGE END ---
     
     const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
     const [helpModalContent, setHelpModalContent] = useState(null);
@@ -185,16 +188,22 @@ export default function App() {
             appId: process.env.REACT_APP_APP_ID,
         };
 
+        let auth;
+        let firestoreDb;
+
         if (firebaseConfig.apiKey && firebaseConfig.projectId) {
             try {
                 const app = initializeApp(firebaseConfig);
-                const firestoreDb = getFirestore(app);
-                const auth = getAuth(app);
+                firestoreDb = getFirestore(app);
+                auth = getAuth(app);
                 setDb(firestoreDb);
 
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         setUserId(user.uid);
+                        // --- CHANGE START ---
+                        setIsFirebaseReady(true); // Firebase is ready only after we have a user
+                        // --- CHANGE END ---
                     } else {
                         try {
                             if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -205,12 +214,14 @@ export default function App() {
                         } catch (authError) {
                             console.error("Firebase Auth Error:", authError);
                             setError("Authentication failed.");
+                            setIsFirebaseReady(true); // Still ready, but with an error
                         }
                     }
                 });
             } catch(e) {
                 console.error("Firebase initialization error:", e);
                 setError("Firebase initialization failed.");
+                setIsFirebaseReady(true); // Still ready, but with an error
             }
         } else {
              const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
@@ -218,12 +229,13 @@ export default function App() {
                 try {
                     const parsedConfig = JSON.parse(firebaseConfigStr);
                     const app = initializeApp(parsedConfig);
-                    const firestoreDb = getFirestore(app);
-                    const auth = getAuth(app);
+                    firestoreDb = getFirestore(app);
+                    auth = getAuth(app);
                     setDb(firestoreDb);
                      onAuthStateChanged(auth, async (user) => {
                         if (user) {
                             setUserId(user.uid);
+                            setIsFirebaseReady(true);
                         } else {
                             try {
                                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
@@ -234,16 +246,19 @@ export default function App() {
                             } catch (authError) {
                                 console.error("Firebase Auth Error:", authError);
                                 setError("Authentication failed.");
+                                setIsFirebaseReady(true);
                             }
                         }
                     });
                 } catch (e) {
                     console.error("Fallback Firebase config parsing error:", e);
                     setError("Firebase configuration is invalid.");
+                    setIsFirebaseReady(true);
                 }
              } else {
                 console.error("Firebase configuration is missing from both .env and injected script.");
                 setError("Firebase configuration is missing.");
+                setIsFirebaseReady(true);
              }
         }
     }, []);
@@ -258,7 +273,10 @@ export default function App() {
     }), []);
 
     const processData = useCallback(async () => {
-        if (!db || !userId) {
+        // --- CHANGE START ---
+        // Guard clause now checks the new readiness state
+        if (!isFirebaseReady || !db || !userId) {
+        // --- CHANGE END ---
             setError("Database is not ready. Please wait.");
             return;
         }
@@ -311,11 +329,14 @@ export default function App() {
         } finally {
             setIsLoading(false);
         }
-    }, [followersFile, followingFile, pendingFile, blockedFile, unfollowedFile, followersText, followingText, blockedText, db, userId, handleFileRead]);
+    }, [followersFile, followingFile, pendingFile, blockedFile, unfollowedFile, followersText, followingText, blockedText, db, userId, handleFileRead, isFirebaseReady]);
     
     useEffect(() => {
         const loadPreviousData = async () => {
-            if (db && userId) {
+            // --- CHANGE START ---
+            // Guard clause now checks the new readiness state
+            if (isFirebaseReady && db && userId) {
+            // --- CHANGE END ---
                 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
                 const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
                 const docSnap = await getDoc(userDocRef);
@@ -336,7 +357,7 @@ export default function App() {
             }
         };
         loadPreviousData();
-    }, [db, userId]);
+    }, [db, userId, isFirebaseReady]);
 
     const resetState = () => {
         setView('main');
@@ -427,10 +448,10 @@ export default function App() {
                     </button>
                     <button 
                         onClick={processData} 
-                        disabled={!db || !userId || isLoading || !hasAnyInput} 
+                        disabled={!isFirebaseReady || isLoading || !hasAnyInput} 
                         className="bg-green-500 text-white font-bold rounded-full py-4 px-12 text-xl hover:bg-green-400 disabled:bg-gray-600 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 shadow-2xl"
                     >
-                        {!db || !userId ? 'Connecting...' : isLoading ? 'Processing...' : 'Analyze My Data'}
+                        {!isFirebaseReady ? 'Connecting...' : isLoading ? 'Processing...' : 'Analyze My Data'}
                     </button>
                 </div>
             </div>
@@ -456,8 +477,10 @@ export default function App() {
         </div>
     );
 
-    // Show a global loading screen until Firebase is ready
-    if (!db || !userId) {
+    // --- CHANGE START ---
+    // Show a global loading screen until Firebase is fully ready
+    if (!isFirebaseReady) {
+    // --- CHANGE END ---
         return (
             <main className="min-h-screen w-full bg-gray-900 text-white flex flex-col items-center justify-center">
                  <svg className="animate-spin h-10 w-10 text-white mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
