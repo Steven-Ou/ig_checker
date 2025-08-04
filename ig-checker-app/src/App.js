@@ -183,22 +183,33 @@ const parseList = (content) => {
     try {
         const data = JSON.parse(content);
         if (Array.isArray(data)) {
-            if (data.every(item => typeof item === 'string')) return data;
-            if (data.every(item => item.string_list_data?.[0]?.value)) {
-                return data.map(item => item.string_list_data[0].value);
+            // --- CHANGE START ---
+            // This logic is now more robust. It attempts to map the known JSON structure,
+            // filtering out any items that don't match, rather than failing completely.
+            const usernames = data
+                .map(item => item?.string_list_data?.[0]?.value)
+                .filter(Boolean); // Filter out any null/undefined values from non-matching items
+
+            if (usernames.length > 0) {
+                return usernames;
+            }
+            // --- CHANGE END ---
+
+            // Fallback for a simple array of strings, just in case.
+            if (data.every(item => typeof item === 'string')) {
+                return data;
             }
         }
     } catch (e) {
-        // --- CHANGE START ---
-        // This logic is now smarter to handle messy pasted text from Instagram.
+        // This logic handles pasted text, which is not valid JSON.
+        // It's now smarter to handle messy pasted text from Instagram.
         return content.split('\n').map(line => {
             // Trim the line, then split by spaces to isolate the username, which is usually the first part.
             const parts = line.trim().split(/\s+/);
             return parts[0]; // Return the first part, which should be the username
         }).filter(Boolean); // Filter out any empty lines that might result
-        // --- CHANGE END ---
     }
-    return [];
+    return []; // Return empty if no valid data could be parsed
 };
 
 
