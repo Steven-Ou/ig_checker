@@ -157,7 +157,7 @@ const HELP_CONTENT = {
             <ul className="list-disc list-inside space-y-2 pl-4 font-mono text-white/90">
                 <li><strong>Pending follow requests:</strong> Look for <strong className="text-indigo-300">pending_follow_requests.json</strong></li>
                 <li><strong>Blocked Accounts:</strong> Look for <strong className="text-indigo-300">blocked_accounts.json</strong></li>
-                <li><strong>Unfollowed Accounts:</strong> Unfortunately, Instagram does not provide a direct list of who unfollowed you. This option is for users who may have tracked this data themselves.</li>
+                <li><strong>Unfollowed Accounts:</strong> This app now tracks unfollowers automatically! You no longer need to provide this file.</li>
             </ul>
         </>
     ),
@@ -184,43 +184,37 @@ const parseList = (content) => {
         const data = JSON.parse(content);
         let listData = [];
 
-        // Check if the parsed data is an array directly (like followers_1.json)
         if (Array.isArray(data)) {
             listData = data;
         } 
-        // Check if it's an object that contains the list (like following.json)
         else if (typeof data === 'object' && data !== null) {
-            // Find the key that contains the array of users (e.g., "relationships_following")
             const key = Object.keys(data).find(k => Array.isArray(data[k]));
             if (key) {
                 listData = data[key];
             }
         }
 
-        // If we found a list, process it to get usernames
         if (listData.length > 0) {
             const usernames = listData
                 .map(item => item?.string_list_data?.[0]?.value)
-                .filter(Boolean); // Filter out any null/undefined values
+                .filter(Boolean);
 
             if (usernames.length > 0) {
                 return usernames;
             }
         }
 
-        // Fallback for a simple array of strings, just in case.
         if (Array.isArray(data) && data.every(item => typeof item === 'string')) {
             return data;
         }
 
     } catch (e) {
-        // This logic handles pasted text, which is not valid JSON.
         return content.split('\n').map(line => {
             const parts = line.trim().split(/\s+/);
             return parts[0];
         }).filter(Boolean);
     }
-    return []; // Return empty if no valid data could be parsed
+    return [];
 };
 
 
@@ -235,8 +229,7 @@ export default function App() {
     const [followingFile, setFollowingFile] = useState(null);
     const [pendingFile, setPendingFile] = useState(null);
     const [blockedFile, setBlockedFile] = useState(null);
-    const [unfollowedFile, setUnfollowedFile] = useState(null);
-
+    
     const [followersText, setFollowersText] = useState('');
     const [followingText, setFollowingText] = useState('');
     const [blockedText, setBlockedText] = useState('');
@@ -246,7 +239,9 @@ export default function App() {
     const [iDontFollowBack, setIDontFollowBack] = useState([]);
     const [mutuals, setMutuals] = useState([]);
     const [unverifiedFollowings, setUnverifiedFollowings] = useState([]);
-    const [unfollowedAccounts, setUnfollowedAccounts] = useState([]);
+    // --- NEW: State for comparison results ---
+    const [unfollowersSinceLastScan, setUnfollowersSinceLastScan] = useState([]);
+    const [newFollowersSinceLastScan, setNewFollowersSinceLastScan] = useState([]);
     const [blockedAccounts, setBlockedAccounts] = useState([]);
 
     const [isLoading, setIsLoading] = useState(false);
@@ -369,15 +364,21 @@ export default function App() {
         setError('');
 
         try {
-            const [followers, following, pending, blocked, unfollowed] = await Promise.all([
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
+            
+            // --- NEW: Fetch previous data for comparison ---
+            const docSnap = await getDoc(userDocRef);
+            const previousFollowers = docSnap.exists() ? docSnap.data().followers || [] : [];
+
+            const [followers, following, pending, blocked] = await Promise.all([
                 followersText ? Promise.resolve(parseList(followersText)) : handleFileRead(followersFile),
                 followingText ? Promise.resolve(parseList(followingText)) : handleFileRead(followingFile),
                 handleFileRead(pendingFile),
                 blockedText ? Promise.resolve(parseList(blockedText)) : handleFileRead(blockedFile),
-                handleFileRead(unfollowedFile)
             ]);
             
-            if ([followers, following, pending, blocked, unfollowed].every(list => list.length === 0)) {
+            if ([followers, following, pending, blocked].every(list => list.length === 0)) {
                 setError("Please provide at least one data file or list to analyze.");
                 setIsLoading(false);
                 return;
@@ -386,24 +387,30 @@ export default function App() {
             const followersSet = new Set(followers);
             const followingSet = new Set(following);
 
+            // --- NEW: Perform comparison logic ---
+            if (previousFollowers.length > 0 && followers.length > 0) {
+                const previousFollowersSet = new Set(previousFollowers);
+                const unfollowers = previousFollowers.filter(user => !followersSet.has(user));
+                const newFollows = followers.filter(user => !previousFollowersSet.has(user));
+                setUnfollowersSinceLastScan(unfollowers);
+                setNewFollowersSinceLastScan(newFollows);
+            }
+
             const results = {
                 dontFollowBack: (followers.length > 0 && following.length > 0) ? following.filter(user => !followersSet.has(user)) : [],
                 iDontFollowBack: (followers.length > 0 && following.length > 0) ? followers.filter(user => !followingSet.has(user)) : [],
                 mutuals: (followers.length > 0 && following.length > 0) ? following.filter(user => followersSet.has(user)) : [],
                 unverifiedFollowings: pending,
-                unfollowedAccounts: unfollowed,
-                blockedAccounts: blocked
+                blockedAccounts: blocked,
+                followers: followers // --- NEW: Save the raw followers list for next time
             };
 
             setDontFollowBack(results.dontFollowBack);
             setIDontFollowBack(results.iDontFollowBack);
             setMutuals(results.mutuals);
             setUnverifiedFollowings(results.unverifiedFollowings);
-            setUnfollowedAccounts(results.unfollowedAccounts);
             setBlockedAccounts(results.blockedAccounts);
 
-            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-            const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
             await setDoc(userDocRef, { ...results, timestamp: new Date() });
 
             setView('results');
@@ -413,7 +420,7 @@ export default function App() {
         } finally {
             setIsLoading(false);
         }
-    }, [followersFile, followingFile, pendingFile, blockedFile, unfollowedFile, followersText, followingText, blockedText, db, userId, handleFileRead, isFirebaseReady]);
+    }, [followersFile, followingFile, pendingFile, blockedFile, followersText, followingText, blockedText, db, userId, handleFileRead, isFirebaseReady]);
     
     useEffect(() => {
         const loadPreviousData = async () => {
@@ -428,7 +435,6 @@ export default function App() {
                     setIDontFollowBack(data.iDontFollowBack || []);
                     setMutuals(data.mutuals || []);
                     setUnverifiedFollowings(data.unverifiedFollowings || []);
-                    setUnfollowedAccounts(data.unfollowedAccounts || []);
                     setBlockedAccounts(data.blockedAccounts || []);
                     
                     if (Object.values(data).some(arr => Array.isArray(arr) && arr.length > 0)) {
@@ -443,10 +449,12 @@ export default function App() {
     const resetState = () => {
         setView('main');
         setFollowersFile(null); setFollowingFile(null); setPendingFile(null);
-        setBlockedFile(null); setUnfollowedFile(null);
+        setBlockedFile(null);
         setFollowersText(''); setFollowingText(''); setBlockedText('');
         setError('');
         setAiInsights([]);
+        setUnfollowersSinceLastScan([]);
+        setNewFollowersSinceLastScan([]);
     };
 
     const openHelpModal = (content) => {
@@ -534,7 +542,7 @@ export default function App() {
     );
 
     const renderMain = () => {
-        const hasAnyInput = !!(followersFile || followersText || followingFile || followingText || pendingFile || unfollowedFile || blockedFile || blockedText);
+        const hasAnyInput = !!(followersFile || followersText || followingFile || followingText || pendingFile || blockedFile || blockedText);
 
         return (
             <div className="w-full max-w-7xl mx-auto animate-fade-in">
@@ -574,16 +582,17 @@ export default function App() {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
-                            <Card><FileInput label="Unfollowed You File" id="unfollowed-file" onFileSelect={setUnfollowedFile} /></Card>
                             <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
-                            
-                            <Card className="md:col-span-3 flex flex-col">
-                                <div className="flex justify-center items-center mb-3">
-                                    <label className="block text-lg font-semibold text-white text-center">Paste Blocked Accounts List</label>
-                                    <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
-                                </div>
-                                <PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." />
-                            </Card>
+                            {/* --- REMOVED Unfollowed file input as it's now automatic --- */}
+                            <div className="md:col-span-3">
+                                <Card className="flex flex-col">
+                                    <div className="flex justify-center items-center mb-3">
+                                        <label className="block text-lg font-semibold text-white text-center">Paste Blocked Accounts List</label>
+                                        <HelpIcon onClick={() => openHelpModal(HELP_CONTENT.PASTE)} />
+                                    </div>
+                                    <PasteInput value={blockedText} onChange={setBlockedText} placeholder="Paste blocked accounts here..." />
+                                </Card>
+                            </div>
                         </div>
                     </section>
                 </div>
@@ -613,12 +622,14 @@ export default function App() {
         <div className="w-full max-w-7xl mx-auto animate-fade-in">
              <h2 className="text-4xl font-bold text-white text-center mb-8">Your Results</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* --- NEW: Added comparison result lists --- */}
+                <ResultList title="Unfollowers Since Last Scan" count={unfollowersSinceLastScan.length} users={unfollowersSinceLastScan} />
+                <ResultList title="New Followers Since Last Scan" count={newFollowersSinceLastScan.length} users={newFollowersSinceLastScan} />
                 <ResultList title="Don't Follow You Back" count={dontFollowBack.length} users={dontFollowBack} />
                 <ResultList title="You Don't Follow Back" count={iDontFollowBack.length} users={iDontFollowBack} />
                 <ResultList title="Mutuals" count={mutuals.length} users={mutuals} />
                 <ResultList title="Blocked Accounts" count={blockedAccounts.length} users={blockedAccounts} />
                 <ResultList title="Pending Follow Requests" count={unverifiedFollowings.length} users={unverifiedFollowings} />
-                <ResultList title="Recently Unfollowed You" count={unfollowedAccounts.length} users={unfollowedAccounts} />
              </div>
              <div className="text-center mt-12 flex justify-center items-center gap-4">
                  <button onClick={resetState} className="bg-indigo-500 text-white font-bold rounded-full py-3 px-8 text-lg hover:bg-indigo-400 transition-all duration-300 transform hover:scale-105 shadow-2xl">
