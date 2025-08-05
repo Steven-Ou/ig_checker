@@ -184,37 +184,43 @@ const parseList = (content) => {
         const data = JSON.parse(content);
         let listData = [];
 
+        // Check if the parsed data is an array directly (like followers_1.json)
         if (Array.isArray(data)) {
             listData = data;
         } 
+        // Check if it's an object that contains the list (like following.json)
         else if (typeof data === 'object' && data !== null) {
+            // Find the key that contains the array of users (e.g., "relationships_following")
             const key = Object.keys(data).find(k => Array.isArray(data[k]));
             if (key) {
                 listData = data[key];
             }
         }
 
+        // If we found a list, process it to get usernames
         if (listData.length > 0) {
             const usernames = listData
                 .map(item => item?.string_list_data?.[0]?.value)
-                .filter(Boolean);
+                .filter(Boolean); // Filter out any null/undefined values
 
             if (usernames.length > 0) {
                 return usernames;
             }
         }
 
+        // Fallback for a simple array of strings, just in case.
         if (Array.isArray(data) && data.every(item => typeof item === 'string')) {
             return data;
         }
 
     } catch (e) {
+        // This logic handles pasted text, which is not valid JSON.
         return content.split('\n').map(line => {
             const parts = line.trim().split(/\s+/);
             return parts[0];
         }).filter(Boolean);
     }
-    return [];
+    return []; // Return empty if no valid data could be parsed
 };
 
 
@@ -239,7 +245,6 @@ export default function App() {
     const [iDontFollowBack, setIDontFollowBack] = useState([]);
     const [mutuals, setMutuals] = useState([]);
     const [unverifiedFollowings, setUnverifiedFollowings] = useState([]);
-    // --- NEW: State for comparison results ---
     const [unfollowersSinceLastScan, setUnfollowersSinceLastScan] = useState([]);
     const [newFollowersSinceLastScan, setNewFollowersSinceLastScan] = useState([]);
     const [blockedAccounts, setBlockedAccounts] = useState([]);
@@ -367,7 +372,6 @@ export default function App() {
             const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
             const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/instagramData`, 'results');
             
-            // --- NEW: Fetch previous data for comparison ---
             const docSnap = await getDoc(userDocRef);
             const previousFollowers = docSnap.exists() ? docSnap.data().followers || [] : [];
 
@@ -387,7 +391,6 @@ export default function App() {
             const followersSet = new Set(followers);
             const followingSet = new Set(following);
 
-            // --- NEW: Perform comparison logic ---
             if (previousFollowers.length > 0 && followers.length > 0) {
                 const previousFollowersSet = new Set(previousFollowers);
                 const unfollowers = previousFollowers.filter(user => !followersSet.has(user));
@@ -402,7 +405,7 @@ export default function App() {
                 mutuals: (followers.length > 0 && following.length > 0) ? following.filter(user => followersSet.has(user)) : [],
                 unverifiedFollowings: pending,
                 blockedAccounts: blocked,
-                followers: followers // --- NEW: Save the raw followers list for next time
+                followers: followers
             };
 
             setDontFollowBack(results.dontFollowBack);
@@ -583,7 +586,6 @@ export default function App() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             <Card><FileInput label="Pending Requests File" id="pending-file" onFileSelect={setPendingFile} /></Card>
                             <Card><FileInput label="Blocked Accounts File" id="blocked-file" onFileSelect={setBlockedFile} /></Card>
-                            {/* --- REMOVED Unfollowed file input as it's now automatic --- */}
                             <div className="md:col-span-3">
                                 <Card className="flex flex-col">
                                     <div className="flex justify-center items-center mb-3">
@@ -622,7 +624,6 @@ export default function App() {
         <div className="w-full max-w-7xl mx-auto animate-fade-in">
              <h2 className="text-4xl font-bold text-white text-center mb-8">Your Results</h2>
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* --- NEW: Added comparison result lists --- */}
                 <ResultList title="Unfollowers Since Last Scan" count={unfollowersSinceLastScan.length} users={unfollowersSinceLastScan} />
                 <ResultList title="New Followers Since Last Scan" count={newFollowersSinceLastScan.length} users={newFollowersSinceLastScan} />
                 <ResultList title="Don't Follow You Back" count={dontFollowBack.length} users={dontFollowBack} />
