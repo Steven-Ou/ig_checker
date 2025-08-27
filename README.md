@@ -1,11 +1,15 @@
 # Instagram Follower Checker
 
-<div align="center">
-  <img src="cover.png" alt="IG Checker App Screenshot" width="400"/>
-  <img src="inside.png" alt="IG Checker Inside Screenshot" width="400">
-</div>
-
-<div align="center">
+<table>
+  <tr>
+    <td valign="top">
+      <img src="cover.png" alt="IG Checker App Screenshot" width="400" height="300" />
+    </td>
+    <td valign="top">
+      <img src="inside.png" alt="IG Checker Results" width="400" height="300" />
+    </td>
+  </tr>
+</table>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
