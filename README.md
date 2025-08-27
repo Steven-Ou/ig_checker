@@ -1,70 +1,64 @@
-# Getting Started with Create React App
+# Instagram Insights Checker
+
+![Application Screenshot](cover.jpeg)(inside.jpeg)
+
+This project is a web application that allows you to analyze your Instagram follower data to gain insights into your account's relationships. You can upload your Instagram data files or paste the raw text to see who doesn't follow you back, whom you don't follow back, and your mutual connections. Additionally, it can track unfollowers and new followers between scans and provides AI-powered analysis of your followers.
+
+---
+
+## ✨ Features
+
+- **Relationship Analysis**: Determines users who don't follow you back, users you don't follow back, and mutual followers.
+- **Unfollower Tracking**: Identifies users who have unfollowed you since your last data analysis.
+- **New Follower Tracking**: See who has followed you since your last scan.
+- **Optional Data Analysis**: You can also upload data for pending follow requests and blocked accounts for a more complete picture.
+- **AI-Powered Insights**: Get automated analysis and insights about your followers using AI.
+- **Secure and Private**: The app uses Firebase for secure, anonymous authentication and data storage.
+
+---
+
+## 🚀 How to Use
+
+To get your data from Instagram:
+
+1.  Go to your Instagram Profile > **Settings and privacy** > **Accounts Center**.
+2.  Select **Your information and permissions** > **Download your information**.
+3.  Click **Request a download**, select your profile, and click **Next**.
+4.  Choose **Select types of information**.
+5.  Select **Followers and following**. Click **Next**.
+6.  Set the format to **JSON**. Click **Submit request**.
+
+Instagram will email you a link to download a ZIP file. Once you unzip it, look for `followers_1.json` and `following.json` inside the **followers_and_following** folder and upload them to the application. You can also paste the content of these files.
+
+---
+
+## 🛠️ Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Available Scripts
+### Available Scripts
 
 In the project directory, you can run:
 
-### `npm start`
+**`npm start`**
+_Runs the app in development mode._
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+**`npm test`**
+_Launches the test runner._
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+**`npm run build`**
+_Builds the app for production._
 
-### `npm test`
+---
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## ☁️ Deployment
 
-### `npm run build`
+The application is set up for continuous deployment using GitHub Actions and Firebase Hosting. Merges and pull requests to the `main` branch will trigger a build and deployment.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+---
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## 💻 Technologies Used
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Frontend**: React, Tailwind CSS
+- **Backend**: Firebase (Authentication, Firestore)
+- **Deployment**: Firebase Hosting, GitHub Actions
