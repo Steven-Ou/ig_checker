@@ -2,6 +2,7 @@
 
 <div align="center">
   <img src="cover.png" alt="IG Checker App Screenshot" width="400"/>
+  <img src="inside.png" alt="IG Checker Inside Screenshot" width="400">
 </div>
 
 <div align="center">
