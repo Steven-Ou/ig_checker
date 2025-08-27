@@ -10,15 +10,15 @@
     </td>
   </tr>
 </table>
-<div style="text-align:center">
+
+<div align="center">
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
 [![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
 
-</div>
-
----
+## </div>
 
 This project is a web application that allows users to check their Instagram followers and see who is not following them back. It provides a simple interface for users to upload their followers and following lists to get a list of users who don't follow them back.
 
