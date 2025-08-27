@@ -1,6 +1,11 @@
 # Instagram Insights Checker
 
-![Application Screenshot](cover.jpeg)(inside.jpeg)
+<table>
+  <tr>
+    <td><img src="cover.jpeg" alt="Cover Screenshot" width="400"></td>
+    <td><img src="inside.jpeg" alt="Inside Screenshot" width="400"></td>
+  </tr>
+</table>
 
 This project is a web application that allows you to analyze your Instagram follower data to gain insights into your account's relationships. You can upload your Instagram data files or paste the raw text to see who doesn't follow you back, whom you don't follow back, and your mutual connections. Additionally, it can track unfollowers and new followers between scans and provides AI-powered analysis of your followers.
 
