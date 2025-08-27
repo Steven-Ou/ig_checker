@@ -1,69 +1,67 @@
-# Instagram Insights Checker
+# Instagram Follower Checker
 
-<table>
-  <tr>
-    <td><img src="cover.png" alt="Cover Screenshot" width="400"></td>
-    <td><img src="inside.png" alt="Inside Screenshot" width="400"></td>
-  </tr>
-</table>
+<div align="center">
+  <img src="cover.png" alt="IG Checker App Screenshot" width="400"/>
+</div>
 
-This project is a web application that allows you to analyze your Instagram follower data to gain insights into your account's relationships. You can upload your Instagram data files or paste the raw text to see who doesn't follow you back, whom you don't follow back, and your mutual connections. Additionally, it can track unfollowers and new followers between scans and provides AI-powered analysis of your followers.
+<div align="center">
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
+[![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com/)
+[![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white)](https://github.com/features/actions)
+
+</div>
 
 ---
+
+This project is a web application that allows users to check their Instagram followers and see who is not following them back. It provides a simple interface for users to upload their followers and following lists to get a list of users who don't follow them back.
 
 ## ✨ Features
 
-- **Relationship Analysis**: Determines users who don't follow you back, users you don't follow back, and mutual followers.
-- **Unfollower Tracking**: Identifies users who have unfollowed you since your last data analysis.
-- **New Follower Tracking**: See who has followed you since your last scan.
-- **Optional Data Analysis**: You can also upload data for pending follow requests and blocked accounts for a more complete picture.
-- **AI-Powered Insights**: Get automated analysis and insights about your followers using AI.
-- **Secure and Private**: The app uses Firebase for secure, anonymous authentication and data storage.
+- **Follower Analysis**: Compares your "followers" and "following" lists to identify users who do not follow you back.
+- **Simple Interface**: Easy-to-use interface for uploading JSON files exported from Instagram.
+- **Client-Side Processing**: All the logic is handled in the browser, ensuring user data privacy.
+- **Firebase Hosting**: Deployed using Firebase for fast and reliable access.
 
 ---
 
-## 🚀 How to Use
+## 🛠️ Tech Stack
 
-To get your data from Instagram:
-
-1.  Go to your Instagram Profile > **Settings and privacy** > **Accounts Center**.
-2.  Select **Your information and permissions** > **Download your information**.
-3.  Click **Request a download**, select your profile, and click **Next**.
-4.  Choose **Select types of information**.
-5.  Select **Followers and following**. Click **Next**.
-6.  Set the format to **JSON**. Click **Submit request**.
-
-Instagram will email you a link to download a ZIP file. Once you unzip it, look for `followers_1.json` and `following.json` inside the **followers_and_following** folder and upload them to the application. You can also paste the content of these files.
+- **Framework**: [React](https://reactjs.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Deployment**: [Firebase Hosting](https://firebase.google.com/docs/hosting)
 
 ---
 
-## 🛠️ Getting Started
+## 🚀 Getting Started
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-### Available Scripts
+### Prerequisites
+
+- Node.js >= 16.0.0
+- npm, yarn, or pnpm
+
+### Installation
+
+1.  Clone the repository:
+    ```bash
+    git clone [https://github.com/steven-ou/ig_checker.git](https://github.com/steven-ou/ig_checker.git)
+    ```
+2.  Navigate to the project directory:
+    ```bash
+    cd ig-checker-app
+    ```
+3.  Install the dependencies:
+    ```bash
+    npm install
+    ```
+
+### Running the Development Server
 
 In the project directory, you can run:
 
-**`npm start`**
-_Runs the app in development mode._
-
-**`npm test`**
-_Launches the test runner._
-
-**`npm run build`**
-_Builds the app for production._
-
----
-
-## ☁️ Deployment
-
-The application is set up for continuous deployment using GitHub Actions and Firebase Hosting. Merges and pull requests to the `main` branch will trigger a build and deployment.
-
----
-
-## 💻 Technologies Used
-
-- **Frontend**: React, Tailwind CSS
-- **Backend**: Firebase (Authentication, Firestore)
-- **Deployment**: Firebase Hosting, GitHub Actions
+```bash
+npm start
+```
